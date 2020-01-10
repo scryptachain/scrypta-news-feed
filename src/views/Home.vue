@@ -1,16 +1,17 @@
 <template>
-  <div class="home">
-    
+  <div class="container" style="margin-top:40px">
+    <div class="row">
+      <div class="col-12">
+        <h1>Scrypta News Feed</h1>
+        <h3>is a minimal Proof of Concept of decentralized and verified content written by trustable addresses.</h3>
+        <hr>
+        <div v-if="isLoading">Loading news from the blockchain...</div>
+      </div>
+    </div>
     <div class="node-badge" v-if="connected">{{ connected }}</div>
   </div>
 </template>
 
-<style>
-  #app{
-    text-align: center;
-    font-family: 'karmillaregular';
-  }
-</style>
 
 <script>
 
@@ -41,7 +42,8 @@ export default {
       scrypta: window.ScryptaCore,
       axios: window.axios,
       nodes: [],
-      connected: ''
+      connected: '',
+      isLoading: true
     }
   }
 }
