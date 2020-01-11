@@ -1,26 +1,3 @@
-# Scrypta Blockchain VueJS Starter
+# Scrypta News Feed
 
-## Project setup
-```
-npm install
-```
-
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Run your tests
-```
-npm run test
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
+This PoC will allow to share and read decentralized news feeds written on the Scrypta Blockchain.
