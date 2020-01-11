@@ -2,25 +2,21 @@
   <div class="container" style="margin-top:40px">
     <div class="row">
       <div class="col-12">
-        <h1>Scrypta News Feed</h1>
-        <h3>is a minimal Proof of Concept of decentralized and verified content written by trustable addresses.</h3>
-        <hr>
         <div v-if="isLoading">Loading news from the blockchain...</div>
         <div v-if="!isLoading">
-          <br><br>
-          <div v-for="news in feed" v-bind:key="news._id" class="feed" style="position:relative">
-            <h2 style="margin:0; padding:0; line-height:9px">{{ news.refID }}</h2><br>
-            <div style="font-size:15px; margin-top:-10px">Written by <b>{{ news.address }}</b> at block <i>{{ news.block }}</i></div>
-            <br>
-            <a :href="'/#/news/' + news.uuid">
-              <b-icon-arrow-right class="arrow-dx"></b-icon-arrow-right>
+            <h1 style="margin:0; padding:0; line-height:9px">{{ news.refID }}</h1><br>
+            <div style="font-size:15px; margin-top:0px">Written by <b>{{ news.address }}</b></div>
+            at block <i>{{ news.block }}</i><br>
+            Timestamped at {{ time }}<br>
+            <a :href="'https:/proof.scryptachain.org/#/uuid/' + news.uuid" target="_blank">
+              Show Proof of Existence <b-icon-arrow-right></b-icon-arrow-right>
             </a>
             <hr>
+            <div class="news" v-html="news.data"></div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="node-badge" v-if="connected">{{ connected }}</div>
+      <div class="node-badge" v-if="connected">{{ connected }}</div>
   </div>
 </template>
 
@@ -43,9 +39,10 @@ export default {
                 if(app.connected === ''){
                   app.connected = check.config.url.replace('/wallet/getinfo','')
                   app.axios.post(app.connected + '/read', {
-                    protocol: 'news://'
+                    uuid: app.$route.params.uuid
                   }).then(response => {
-                    app.feed = response.data.data
+                    app.news = response.data.data[0]
+                    app.time = new Date(app.news.time * 1000).toUTCString()
                     app.isLoading = false
                   })
                 }
@@ -61,7 +58,8 @@ export default {
       axios: window.axios,
       nodes: [],
       connected: '',
-      feed: [],
+      time: '',
+      news: [],
       isLoading: true
     }
   }
@@ -72,7 +70,7 @@ export default {
   .node-badge{
     position:fixed; bottom:-3px; font-size:10px; padding:8px; right:10px; z-index:9999;
   }
-  .feed img{
+  .news img{
     max-width:100%
   }
   .arrow-dx{
