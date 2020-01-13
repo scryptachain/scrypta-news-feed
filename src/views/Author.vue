@@ -9,12 +9,12 @@
           <div style="float:right; text-align:right; width:30%; display:inline-block">
             <span v-for="identity in identities" v-bind:key="identity._id">
               <a :href="'https://proof.scryptachain.org/#/uuid/' + identity.uuid" target="_blank">
-                <font-awesome-icon v-if="identity.refID === 'TWITTER'" :icon="['fab', 'twitter']" />
-                <font-awesome-icon style="margin-left:10px" v-if="identity.refID === 'LINKEDIN'" :icon="['fab', 'linkedin']" />
-                <font-awesome-icon style="margin-left:10px" v-if="identity.refID === 'GITHUB'" :icon="['fab', 'github']" />
-                <font-awesome-icon style="margin-left:10px" v-if="identity.refID === 'GOOGLE'" :icon="['fab', 'google']" />
-                <font-awesome-icon style="margin-left:10px" v-if="identity.refID === 'MAIL'" icon="envelope" />
-                <font-awesome-icon style="margin-left:10px" v-if="identity.refID === 'PHONE'" icon="phone" />
+                <img src="../assets/twitter.svg" height="25" v-if="identity.refID === 'TWITTER'">
+                <img src="../assets/linkedin.svg" style="margin-left:10px" height="25" v-if="identity.refID === 'LINKEDIN'">
+                <img src="../assets/github.svg" style="margin-left:10px" height="25" v-if="identity.refID === 'GITHUB'">
+                <img src="../assets/google-plus.svg" style="margin-left:10px" height="25" v-if="identity.refID === 'GOOGLE'">
+                <img src="../assets/mail.svg" height="25" style="margin-left:10px" v-if="identity.refID === 'EMAIL'">
+                <img src="../assets/iphone.svg" height="25" style="margin-left:10px" v-if="identity.refID === 'PHONE'">
               </a>
             </span>
           </div>
