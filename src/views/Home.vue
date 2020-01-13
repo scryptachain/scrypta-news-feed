@@ -9,8 +9,11 @@
         <div v-if="!isLoading">
           <br><br>
           <div v-for="news in feed" v-bind:key="news._id" class="feed" style="position:relative">
+            <v-gravatar :email="news.address" height="50" style="margin-right:20px; margin-top:-7px; float:left" />
             <h2 style="margin:0; padding:0; line-height:9px">{{ news.refID }}</h2><br>
-            <div style="font-size:15px; margin-top:-10px">Written by <b>{{ news.address }}</b> at block <i>{{ news.block }}</i></div>
+            <div style="font-size:15px; margin-top:-10px">
+              <b><a :href="'/#/author/' + news.address">{{ news.address }}</a></b> at block <i>{{ news.block }}</i>
+            </div>
             <br>
             <a :href="'/#/news/' + news.uuid">
               <b-icon-arrow-right class="arrow-dx"></b-icon-arrow-right>

@@ -158,6 +158,7 @@
 
 <script>
 import { Editor, EditorContent, EditorMenuBar } from 'tiptap'
+var LZUTF8 = require('lzutf8');
 import {
   Blockquote,
   CodeBlock,
@@ -231,10 +232,12 @@ export default {
           if(app.titleToWrite !== ''){
             refID = app.titleToWrite
           }
+          var uncompressed = app.html
+          var compressed = LZUTF8.compress(uncompressed,{outputEncoding: 'Base64'})
           
           if(errors === false){
             app.workingmessage = 'Uploading data to the blockchain, please wait and don\'t refresh the page...'
-            app.scrypta.write(app.unlockPwd, app.html, '', refID , protocol, app.public_address + ':' + app.encrypted_wallet).then(res => {
+            app.scrypta.write(app.unlockPwd, compressed, '', refID , protocol, app.public_address + ':' + app.encrypted_wallet).then(res => {
               if(res.uuid !== undefined){
                 alert('Data written correctly into the blockchain, wait at least 2 minutes and refresh the page!')
                 this.isUploading = false
@@ -327,7 +330,9 @@ export default {
         content: ` `,
         onUpdate: ({ getHTML }) => {
           this.html = getHTML()
-          let chunks = Math.ceil(this.html.length / 74)
+          var uncompressed = this.html
+          var compressed = LZUTF8.compress(uncompressed,{outputEncoding: 'Base64'})
+          let chunks = Math.ceil(compressed.length / 74)
           this.chunks = chunks
           this.fees = chunks * 0.001
         },

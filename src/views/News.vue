@@ -5,7 +5,9 @@
         <div v-if="isLoading">Loading news from the blockchain...</div>
         <div v-if="!isLoading">
             <h1 style="margin:0; padding:0; line-height:9px">{{ news.refID }}</h1><br>
-            <div style="font-size:15px; margin-top:0px">Written by <b>{{ news.address }}</b></div>
+            <div style="font-size:15px; margin-top:0px">
+            <v-gravatar :email="news.address" height="80" style="margin-right:20px; margin-top:6px; float:left" />
+            Written by <b><a :href="'/#/author/' + news.address">{{ news.address }}</a></b></div>
             at block <i>{{ news.block }}</i><br>
             Timestamped at {{ time }}<br>
             <a :href="'https:/proof.scryptachain.org/#/uuid/' + news.uuid" target="_blank">
@@ -22,6 +24,7 @@
 
 
 <script>
+var LZUTF8 = require('lzutf8');
 
 export default {
   name: 'home',
@@ -42,6 +45,7 @@ export default {
                     uuid: app.$route.params.uuid
                   }).then(response => {
                     app.news = response.data.data[0]
+                    app.news.data = LZUTF8.decompress(app.news.data, { inputEncoding: 'Base64' });
                     app.time = new Date(app.news.time * 1000).toUTCString()
                     app.isLoading = false
                   })

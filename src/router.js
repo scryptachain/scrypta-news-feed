@@ -4,8 +4,11 @@ import Home from './views/Home.vue'
 import New from './views/New.vue'
 import Login from './views/Login.vue'
 import News from './views/News.vue'
+import Author from './views/Author.vue'
+import Gravatar from 'vue-gravatar'
 
 Vue.use(Router)
+Vue.component('v-gravatar', Gravatar);
 
 export default new Router({
   base: process.env.BASE_URL,
@@ -29,6 +32,11 @@ export default new Router({
       path: '/news/:uuid',
       name: 'News',
       component: News
+    },
+    {
+      path: '/author/:address',
+      name: 'Author',
+      component: Author
     }
   ]
 })
