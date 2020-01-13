@@ -3,10 +3,10 @@
     <div class="row">
       <div class="col-12">
         <div v-if="isLoading">Loading news from the blockchain...</div>
-        <div v-if="!isLoading">
-            <h1 style="margin:0; padding:0; line-height:9px">{{ news.refID }}</h1><br>
+        <div v-if="!isLoading" class="news-head">
+            <h1 style="margin:0; padding:0; margin-bottom:-30px">{{ news.refID }}</h1><br>
             <div style="font-size:15px; margin-top:0px">
-            <v-gravatar :email="news.address" height="80" style="margin-right:20px; margin-top:6px; float:left" />
+            <v-gravatar :email="news.address" height="80" style="margin-right:20px; margin-top:28px; float:left" /><br>
             Written by <b><a :href="'/#/author/' + news.address">{{ news.address }}</a></b></div>
             at block <i>{{ news.block }}</i><br>
             Timestamped at {{ time }}<br>
@@ -14,7 +14,7 @@
               Show Proof of Existence <b-icon-arrow-right></b-icon-arrow-right>
             </a>
             <hr>
-            <div class="news" v-html="news.data"></div>
+            <div class="news news-text" v-html="news.data"></div>
           </div>
         </div>
       </div>

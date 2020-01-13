@@ -1,6 +1,6 @@
 {
-  "name": "scrypta-polls",
-  "short_name": "scrypta-polls",
+  "name": "Scrypta dNews Feed",
+  "short_name": "dNews Feed",
   "icons": [
     {
       "src": "./img/icons/android-chrome-192x192.png",

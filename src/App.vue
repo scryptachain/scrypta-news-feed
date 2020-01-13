@@ -78,4 +78,12 @@ export default {
 <style>
   @import url('https://rsms.me/inter/inter.css');
   html, #app { font-family: 'Inter', sans-serif; }
+  @media screen and (max-width: 767px){
+    h2{ font-size: 18px!important; }
+    .gravatar-home{height:40px; margin-top: 3px!important; margin-right:10px!important;}
+    .news-head{text-align:center!important}
+    .news-head img{float:none!important; display:inline-block; margin-right:0px!important; margin-bottom:5px; margin-top:15px!important;}
+  }
+  .news-text{text-align:justify; font-size: 18px; font-weight:300; padding-bottom:60px; line-height: 28px;}
+  .news-text img {width:100%!important;}
 </style>

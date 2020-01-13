@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-12">
         <v-gravatar :email="author" height="70" style="margin-right:20px; margin-top:0px; float:left" />
-        <h4>{{ author }}</h4>
+        <h4>{{ author.substr(0,3) }}...{{ author.substr(-3) }}</h4>
         <h5>
           {{ identities.length }} verified identities
           <div style="float:right; text-align:right; width:30%; display:inline-block">
@@ -24,7 +24,7 @@
         <div v-if="!isLoading">
           <br><br>
           <div v-for="news in feed" v-bind:key="news._id" class="feed" style="position:relative">
-            <h2 style="margin:0; padding:0; line-height:9px">{{ news.refID }}</h2><br>
+            <h2 style="margin:0; padding:0;">{{ news.refID }}</h2><br>
             <div style="font-size:15px; margin-top:-10px">Written at block <i>{{ news.block }}</i></div>
             <br>
             <a :href="'/#/news/' + news.uuid">
