@@ -3,22 +3,32 @@
     <div class="row">
       <div class="col-12">
         <h1>Scrypta News Feed</h1>
-        <h3>is a minimal Proof of Concept of decentralized and verified content written by trustable addresses.</h3>
+        <h3>is a minimal Proof of Concept of decentralized and verified content written by trustable addresses. 
+        Anyone can interact with the news by voting it.</h3>
         <hr>
         <div v-if="isLoading">Loading news from the blockchain...</div>
         <div v-if="!isLoading">
           <br><br>
           <div v-for="news in feed" v-bind:key="news._id" class="feed" style="position:relative">
-            <v-gravatar :email="news.address" height="50" class="gravatar-home" style="margin-right:20px; margin-top:-7px; float:left" />
-            <h2 style="margin:0; padding:0; padding-right:40px">{{ news.refID }}</h2><br>
-            <div style="font-size:15px; margin-top:-10px">
-              <b><a :href="'/#/author/' + news.address">{{ news.address }}</a></b> at block <i>{{ news.block }}</i>
+            <div v-if="news.data !== 'upvote' && news.data !== 'downvote'">
+              <v-gravatar :email="news.address" height="85" class="gravatar-home" style="margin-right:20px; margin-top:0px; float:left" />
+              <h2 style="margin:0; padding:0; padding-right:40px">{{ news.refID }}</h2>
+              <div style="font-size:15px;">
+                Written by <b><a :href="'/#/author/' + news.address">{{ news.address.substr(0,3) }}...{{ news.address.substr(-3) }}</a></b> at block <i>{{ news.block }}</i>
+              </div>
+              <div v-if="counters">
+                <div v-for="counter in counters" v-bind:key="counter.uuid">
+                  <div v-if="counter.uuid === news.uuid">
+                    <b><b-icon-arrow-up></b-icon-arrow-up> {{ counter.upvotes }}</b> UPVOTES
+                    <b><b-icon-arrow-down></b-icon-arrow-down> {{ counter.downvotes }}</b> DOWNVOTES
+                  </div>
+                </div>
+              </div>
+              <a :href="'/#/news/' + news.uuid">
+                <b-icon-arrow-right class="arrow-dx"></b-icon-arrow-right>
+              </a>
+              <hr>
             </div>
-            <br>
-            <a :href="'/#/news/' + news.uuid">
-              <b-icon-arrow-right class="arrow-dx"></b-icon-arrow-right>
-            </a>
-            <hr>
           </div>
         </div>
       </div>
@@ -50,11 +60,39 @@ export default {
                   }).then(response => {
                     app.feed = response.data.data
                     app.isLoading = false
+                    app.readCounters()
                   })
                 }
               }
             }
           )
+        }
+      },
+      async readCounters(){
+        const app = this
+        for(let y in app.feed){
+          let votes = await app.axios.post(app.connected + '/read',{ protocol: 'news://', refID: app.feed[y].uuid })
+          let upvotes = 0
+          let downvotes = 0
+          for(let x in votes.data.data){
+            if(app.voters[app.feed[y].uuid] === undefined){
+              app.voters[app.feed[y].uuid] = {}
+            }
+            if(app.voters[app.feed[y].uuid][votes.data.data[x].address] === undefined){
+              if(votes.data.data[x].data === 'upvote'){
+                upvotes++
+                app.voters[app.feed[y].uuid][votes.data.data[x].address] = 'upvote'
+              }else if(votes.data.data[x].data === 'downvote'){
+                downvotes++
+                app.voters[app.feed[y].uuid][votes.data.data[x].address] = 'downvote'
+              }
+            }
+          }
+          app.counters.push({
+            'uuid': app.feed[y].uuid,
+            'upvotes': upvotes,
+            'downvotes': downvotes
+          })
         }
       }
   },
@@ -65,7 +103,9 @@ export default {
       nodes: [],
       connected: '',
       feed: [],
-      isLoading: true
+      isLoading: true,
+      counters: [],
+      voters: {}
     }
   }
 }

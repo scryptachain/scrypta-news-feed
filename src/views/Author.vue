@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-12">
         <v-gravatar :email="author" height="70" style="margin-right:20px; margin-top:0px; float:left" />
-        <h4>{{ author.substr(0,3) }}...{{ author.substr(-3) }}</h4>
+        <h4 class="author">{{ author }}</h4>
         <h5>
           {{ identities.length }} verified identities
           <div style="float:right; text-align:right; width:30%; display:inline-block">
@@ -22,15 +22,23 @@
         <hr>
         <div v-if="isLoading">Loading author's news from the blockchain...</div>
         <div v-if="!isLoading">
-          <br><br>
           <div v-for="news in feed" v-bind:key="news._id" class="feed" style="position:relative">
-            <h2 style="margin:0; padding:0;">{{ news.refID }}</h2><br>
-            <div style="font-size:15px; margin-top:-10px">Written at block <i>{{ news.block }}</i></div>
-            <br>
-            <a :href="'/#/news/' + news.uuid">
-              <b-icon-arrow-right class="arrow-dx"></b-icon-arrow-right>
-            </a>
-            <hr>
+            <div v-if="news.data !== 'upvote' && news.data !== 'downvote'">
+              <h2 style="margin:0; padding:0;">{{ news.refID }}</h2>
+              <div style="font-size:15px;">Written at block <i>{{ news.block }}</i></div>
+              <div v-if="counters">
+                <div v-for="counter in counters" v-bind:key="counter.uuid">
+                  <div v-if="counter.uuid === news.uuid">
+                    <b><b-icon-arrow-up></b-icon-arrow-up> {{ counter.upvotes }}</b> UPVOTES
+                    <b><b-icon-arrow-down></b-icon-arrow-down> {{ counter.downvotes }}</b> DOWNVOTES
+                  </div>
+                </div>
+              </div>
+              <a :href="'/#/news/' + news.uuid">
+                <b-icon-arrow-right class="arrow-dx"></b-icon-arrow-right>
+              </a>
+              <hr>
+            </div>
           </div>
         </div>
       </div>
@@ -46,9 +54,17 @@ export default {
   mounted : async function(){
     const app = this
     app.checkIdaNodes()
+    app.checkUser()
     app.author = app.$route.params.address
   },
   methods: {
+      async checkUser(){
+        const app = this
+        let user = await app.scrypta.keyExist()
+        if(user.length === 34){
+          app.user = user
+        }
+      },
       async checkIdaNodes(){
         var checknodes = this.scrypta.returnNodes()
         const app = this
@@ -63,6 +79,7 @@ export default {
                     address: app.author
                   }).then(response => {
                     app.feed = response.data.data
+                    app.readCounters()
                     app.isLoading = false
                   })
                   app.axios.post(app.connected + '/read', {
@@ -76,6 +93,33 @@ export default {
             }
           )
         }
+      },
+      async readCounters(){
+        const app = this
+        for(let y in app.feed){
+          let votes = await app.axios.post(app.connected + '/read',{ protocol: 'news://', refID: app.feed[y].uuid })
+          let upvotes = 0
+          let downvotes = 0
+          for(let x in votes.data.data){
+            if(app.voters[app.feed[y].uuid] === undefined){
+              app.voters[app.feed[y].uuid] = {}
+            }
+            if(app.voters[app.feed[y].uuid][votes.data.data[x].address] === undefined){
+              if(votes.data.data[x].data === 'upvote'){
+                upvotes++
+                app.voters[app.feed[y].uuid][votes.data.data[x].address] = 'upvote'
+              }else if(votes.data.data[x].data === 'downvote'){
+                downvotes++
+                app.voters[app.feed[y].uuid][votes.data.data[x].address] = 'downvote'
+              }
+            }
+          }
+          app.counters.push({
+            'uuid': app.feed[y].uuid,
+            'upvotes': upvotes,
+            'downvotes': downvotes
+          })
+        }
       }
   },
   data () {
@@ -87,7 +131,10 @@ export default {
       feed: [],
       author: '',
       isLoading: true,
-      identities: []
+      identities: [],
+      counters: [],
+      user: '',
+      voters: {}
     }
   }
 }
