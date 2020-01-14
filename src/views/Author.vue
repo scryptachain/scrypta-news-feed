@@ -26,7 +26,7 @@
             <div v-if="news.data !== 'upvote' && news.data !== 'downvote'">
               <h2 style="margin:0; padding:0;">{{ news.refID }}</h2>
               <div style="font-size:15px;">Written at block <i>{{ news.block }}</i></div>
-              <div v-if="counters">
+              <div v-if="counters" class="counters">
                 <div v-for="counter in counters" v-bind:key="counter.uuid">
                   <div v-if="counter.uuid === news.uuid">
                     <b><b-icon-arrow-up></b-icon-arrow-up> {{ counter.upvotes }}</b> UPVOTES

@@ -9,9 +9,6 @@
 
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
-          <a href="/#/new" v-if="user">
-            <b-button style="position:fixed; bottom:30px; font-weight:bold; font-size:30px; border-radius:200px; width:50px; padding:0; text-align:center; line-height:45px; height:50px; right:30px" pill variant="primary">+</b-button>
-          </a>
           <a href="/#/login" v-if="!user">
             <b-button size="sm" class="my-2 my-sm-0">Login</b-button>
           </a>
@@ -22,6 +19,9 @@
       </b-collapse>
     </b-navbar>
     <router-view/>
+    <a href="/#/new" v-if="user">
+      <b-button style="position:fixed; bottom:30px; font-weight:bold; font-size:30px; border-radius:200px; width:50px; padding:0; text-align:center; line-height:45px; height:50px; right:30px" pill variant="primary">+</b-button>
+    </a>
   </div>
 </template>
 
@@ -79,11 +79,16 @@ export default {
   @import url('https://rsms.me/inter/inter.css');
   html, #app { font-family: 'Inter', sans-serif; }
   @media screen and (max-width: 767px){
-    h2{ font-size: 18px!important; }
-    .gravatar-home{height:60px; margin-top: 3px!important; margin-right:10px!important;}
+    h3{ font-size: 14px!important; }
+    .gravatar-home{height:60px; margin-top: 3px!important; margin-right:10px!important; display:none}
     .news-head{text-align:center!important}
     .news-head img{float:none!important; display:inline-block; margin-right:0px!important; margin-bottom:5px; margin-top:15px!important;}
     .author{font-size:13px}
+    .counters{font-size:13px}
+    .feed{padding-right:15px;}
+    h1{font-size:25px!important;}
+    .container{margin-top:10px!important}
+    .btn-sm{font-size:11px!important}
   }
   .news-text{text-align:justify; font-size: 18px; font-weight:300; padding-bottom:60px; line-height: 28px;}
   .news-text img {width:100%!important;}

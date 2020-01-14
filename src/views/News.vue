@@ -33,7 +33,7 @@
               Show Proof of Existence <b-icon-arrow-right></b-icon-arrow-right>
             </a>
             <hr>
-            <div style="width:100%; height:30px;" v-if="user">
+            <div style="width:100%; height:30px;" class="counters" v-if="user">
               <b-button size="sm" style="float:left" variant="success" v-on:click="openUpvote" class="my-2 my-sm-0"> 
                 <b-icon-arrow-up></b-icon-arrow-up>
                 {{ upvotes }} UPVOTE

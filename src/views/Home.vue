@@ -8,15 +8,14 @@
         <hr>
         <div v-if="isLoading">Loading news from the blockchain...</div>
         <div v-if="!isLoading">
-          <br><br>
           <div v-for="news in feed" v-bind:key="news._id" class="feed" style="position:relative">
             <div v-if="news.data !== 'upvote' && news.data !== 'downvote'">
               <v-gravatar :email="news.address" height="85" class="gravatar-home" style="margin-right:20px; margin-top:0px; float:left" />
-              <h2 style="margin:0; padding:0; padding-right:40px">{{ news.refID }}</h2>
+              <h3 style="margin:0; padding:0; padding-right:40px">{{ news.refID }}</h3>
               <div style="font-size:15px;">
                 Written by <b><a :href="'/#/author/' + news.address">{{ news.address.substr(0,3) }}...{{ news.address.substr(-3) }}</a></b> at block <i>{{ news.block }}</i>
               </div>
-              <div v-if="counters">
+              <div v-if="counters" class="counters">
                 <div v-for="counter in counters" v-bind:key="counter.uuid">
                   <div v-if="counter.uuid === news.uuid">
                     <b><b-icon-arrow-up></b-icon-arrow-up> {{ counter.upvotes }}</b> UPVOTES

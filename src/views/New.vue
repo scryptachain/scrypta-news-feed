@@ -130,7 +130,7 @@
               </div>
             </editor-menu-bar>
             <hr>
-            <editor-content style="margin:40px 0" class="editor__content" :editor="editor" />
+            <editor-content style="padding:0" class="editor__content" :editor="editor" />
             <hr>
             <div class="text-center">
               This news will write {{ chunks }} transactions and it will cost {{ fees }} LYRA
