@@ -5,6 +5,7 @@ import New from './views/New.vue'
 import Login from './views/Login.vue'
 import News from './views/News.vue'
 import Author from './views/Author.vue'
+import Edit from './views/Edit.vue'
 import Gravatar from 'vue-gravatar'
 
 Vue.use(Router)
@@ -32,6 +33,11 @@ export default new Router({
       path: '/news/:uuid',
       name: 'News',
       component: News
+    },
+    {
+      path: '/edit/:uuid',
+      name: 'Edit',
+      component: Edit
     },
     {
       path: '/author/:address',

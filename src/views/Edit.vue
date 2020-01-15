@@ -4,13 +4,22 @@
       <b-form-input v-if="!isUploading" v-model="unlockPwd" type="password" placeholder="Enter wallet password"></b-form-input><br>
       <div v-if="!isUploading" @click.prevent="unlockWallet" class="btn btn-primary">Write</div>
     </b-modal>
+    <b-modal v-model="invalidateShow" hide-footer title="Invalidate news">
+      With this operation the news will be delisted from the IdaNode but it will never deleted from the blockchain. 
+      <br>
+      <b-form-input v-if="!isUploading" v-model="unlockPwd" type="password" placeholder="Enter wallet password"></b-form-input><br>
+      <div v-if="!isUploading" @click.prevent="unlockWalletInvalidate" class="btn btn-primary">Invalidate</div>
+    </b-modal>
     <div class="row">
       <div class="col-12">
         <div class="editor">
-          <h3 class="text-center">You're writing as <i style="font-size:20px">{{ user }}</i></h3>
+          <h3 class="text-center">
+            You're editing <i style="font-size:20px">{{ news.uuid }}</i>
+            <b-icon-trash style="font-size:30px; cursor:pointer; float:right;" v-on:click="showInvalidateModal"></b-icon-trash>
+          </h3>
           <hr>
           <b-form-input v-model="titleToWrite" placeholder="Enter a title"></b-form-input>
-          <editor-menu-bar :editor="editor" v-slot="{ commands, isActive }">
+          <editor-menu-bar v-if="editor" :editor="editor" v-slot="{ commands, isActive }">
             <div class="menubar" style="text-align:center; width:100%">
                 <button
                   class="menubar__button"
@@ -204,6 +213,10 @@ export default {
           window.location='/#/login'
         }
       },
+      showInvalidateModal(){
+        const app = this
+        app.invalidateShow = true
+      },
       openUnlock(){
         const app = this
         if(app.html !== ''){
@@ -234,13 +247,12 @@ export default {
           
           if(errors === false){
             app.workingmessage = 'Uploading data to the blockchain, please wait and don\'t refresh the page...'
-            app.scrypta.write(app.unlockPwd, compressed, '', refID , protocol, app.public_address + ':' + app.encrypted_wallet).then(res => {
+            app.scrypta.write(app.unlockPwd, compressed, '', refID , protocol, app.public_address + ':' + app.encrypted_wallet, app.news.uuid).then(res => {
               if(res.uuid !== undefined){
                 alert('Data written correctly into the blockchain, wait at least 2 minutes and refresh the page!')
                 this.isUploading = false
                 app.html = ''
                 app.title = ''
-                window.location = '/#/author/' + app.user
               }else{
                 alert('There\'s an error in the upload, please retry!')
                 this.isUploading = false
@@ -254,6 +266,30 @@ export default {
           }
         } else {
           alert('Write a text first!')
+        }
+      },
+      unlockWalletInvalidate(){
+        if(this.unlockPwd !== ''){
+          var app = this
+          app.decrypted_wallet = 'WALLET LOCKED'
+          app.scrypta.readKey(this.unlockPwd).then(function (response) {
+            if(response !== false){
+              app.isUploading = true
+              app.scrypta.invalidate(app.unlockPwd, app.public_address + ':' + app.encrypted_wallet, app.news.uuid).then(res => {
+                app.isUploading = false
+                if(res !== false){
+                  alert('Data invalidated correctly!')
+                  window.location = '/#/author/' + app.user
+                }else{
+                  alert('There was a problem, please retry')
+                }
+              })
+            }else{
+              alert('Wrong password!')
+            }
+          })
+        }else{
+          alert('Write your password first')
         }
       },
       unlockWallet(){
@@ -281,7 +317,51 @@ export default {
               if(check.data.blocks !== undefined){
                 if(app.connected === ''){
                   app.connected = check.config.url.replace('/wallet/getinfo','')
-                  app.checkUser()
+                  app.axios.post(app.connected + '/read', {
+                    uuid: app.$route.params.uuid
+                  }).then(async response => {
+                    await app.checkUser()
+                    if(app.user !== response.data.data[0].address){
+                      window.location = '/#/news/' + app.$route.params.uuid
+                    }else{
+                      app.news = response.data.data[0]
+                      app.news.data = LZUTF8.decompress(app.news.data, { inputEncoding: 'Base64' });
+                      app.titleToWrite = app.news.refID
+                      app.editor.destroy()
+                      app.editor = new Editor({
+                        extensions: [
+                          new Blockquote(),
+                          new BulletList(),
+                          new CodeBlock(),
+                          new HardBreak(),
+                          new Heading({ levels: [1, 2, 3] }),
+                          new HorizontalRule(),
+                          new ListItem(),
+                          new Image(),
+                          new OrderedList(),
+                          new TodoItem(),
+                          new TodoList(),
+                          new Link(),
+                          new Bold(),
+                          new Code(),
+                          new Italic(),
+                          new Strike(),
+                          new Underline(),
+                          new History(),
+                        ],
+                        content: app.news.data,
+                        onUpdate: ({ getHTML }) => {
+                          this.html = getHTML()
+                          var uncompressed = this.html
+                          var compressed = LZUTF8.compress(uncompressed,{outputEncoding: 'Base64'})
+                          let chunks = Math.ceil(compressed.length / 74)
+                          this.chunks = chunks
+                          this.fees = chunks * 0.001
+                        }
+                      })
+                      app.isLoading = false
+                    }
+                  })
                 }
               }
             }
@@ -295,6 +375,7 @@ export default {
       axios: window.axios,
       nodes: [],
       passwordShow: false,
+      invalidateShow: false,
       unlockPwd: '',
       user: '',
       connected: '',
@@ -303,6 +384,8 @@ export default {
       encrypted_wallet: '',
       workingmessage: '',
       isUploading: false,
+      news: '',
+      newsText: '',
       titleToWrite: '',
       editor: new Editor({
         extensions: [
@@ -325,15 +408,7 @@ export default {
           new Underline(),
           new History(),
         ],
-        content: ` `,
-        onUpdate: ({ getHTML }) => {
-          this.html = getHTML()
-          var uncompressed = this.html
-          var compressed = LZUTF8.compress(uncompressed,{outputEncoding: 'Base64'})
-          let chunks = Math.ceil(compressed.length / 74)
-          this.chunks = chunks
-          this.fees = chunks * 0.001
-        },
+        content: ''
       }),
       html: '',
       fees: 0,

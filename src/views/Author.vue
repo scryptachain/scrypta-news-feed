@@ -5,7 +5,7 @@
         <v-gravatar :email="author" height="70" style="margin-right:20px; margin-top:0px; float:left" />
         <h4 class="author">{{ author }}</h4>
         <h5>
-          {{ identities.length }} verified identities
+          {{ identities.length }} verified <span v-if="identities.length === 1">identity</span><span v-if="identities.length !== 1">identities</span>
           <div style="float:right; text-align:right; width:30%; display:inline-block">
             <span v-for="identity in identities" v-bind:key="identity._id">
               <a :href="'https://proof.scryptachain.org/#/uuid/' + identity.uuid" target="_blank">
@@ -36,6 +36,9 @@
               </div>
               <a :href="'/#/news/' + news.uuid">
                 <b-icon-arrow-right class="arrow-dx"></b-icon-arrow-right>
+              </a>
+              <a v-if="author === user" :href="'/#/edit/' + news.uuid">
+                <b-icon-pencil class="pencil-dx"></b-icon-pencil>
               </a>
               <hr>
             </div>
@@ -149,9 +152,16 @@ export default {
   }
   .arrow-dx{
     color:#000;
-    font-size:60px!important;
+    font-size:40px!important;
     position:absolute;
     top:-10px;
+    right:0;
+  }
+  .pencil-dx{
+    color:#000;
+    font-size:40px!important;
+    position:absolute;
+    top:40px;
     right:0;
   }
 </style>
