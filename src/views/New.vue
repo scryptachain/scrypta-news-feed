@@ -133,7 +133,7 @@
             <editor-content style="padding:0" class="editor__content" :editor="editor" />
             <hr>
             <div class="text-center">
-              This news will write {{ chunks }} transactions and it will cost {{ fees }} LYRA
+              This news will write {{ chunks }} transaction<span v-if="chunks > 1">s</span> and it will cost {{ fees }} LYRA
             </div>
             <br>
             <div class="text-center">
@@ -330,7 +330,7 @@ export default {
           this.html = getHTML()
           var uncompressed = this.html
           var compressed = LZUTF8.compress(uncompressed,{outputEncoding: 'Base64'})
-          let chunks = Math.ceil(compressed.length / 74)
+          let chunks = Math.ceil(compressed.length / 7500)
           this.chunks = chunks
           this.fees = chunks * 0.001
         },
