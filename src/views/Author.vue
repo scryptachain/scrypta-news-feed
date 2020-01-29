@@ -21,7 +21,7 @@
         </h5>
         <hr>
         <div v-if="isLoading">Loading author's news from the blockchain...</div>
-        <div v-if="feed.length === 0">Nothing to show here...</div>
+        <div v-if="!isLoading && feed.length === 0">Nothing to show here...</div>
         <div v-if="!isLoading">
           <div v-for="news in feed" v-bind:key="news._id" class="feed" style="position:relative">
             <div v-if="news.data !== 'upvote' && news.data !== 'downvote'">
@@ -82,7 +82,13 @@ export default {
                     protocol: 'news://',
                     address: app.author
                   }).then(response => {
-                    app.feed = response.data.data
+                    if(response.data.data.length > 0){
+                      for(let x in response.data.data){
+                        if(response.data.data[x].data !== 'upvote' && response.data.data[x].data !== 'downvote'){
+                          app.feed.push(response.data.data[x])
+                        }
+                      }
+                    }
                     app.readCounters()
                     app.isLoading = false
                   })
