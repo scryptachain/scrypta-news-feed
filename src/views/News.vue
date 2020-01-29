@@ -29,7 +29,7 @@
             Written by <b><a :href="'/#/author/' + news.address">{{ news.address }}</a></b></div>
             at block <i>{{ news.block }}</i><br>
             Timestamped at {{ time }}<br>
-            <a :href="'https:/proof.scryptachain.org/#/uuid/' + news.uuid" target="_blank">
+            <a :href="'https://proof.scryptachain.org/#/uuid/' + news.uuid" target="_blank">
               Show Proof of Existence <b-icon-arrow-right></b-icon-arrow-right>
             </a>
             <hr>
