@@ -225,9 +225,7 @@ export default {
         if (app.html !== '') {
           app.isUploading = true
           var errors = false
-          var protocol = 'news://'
-          var refID = ''
-          
+          var protocol = 'news://'          
           var uncompressedText = app.html
           var compressedText = LZUTF8.compress(uncompressedText,{outputEncoding: 'Base64'})
 
