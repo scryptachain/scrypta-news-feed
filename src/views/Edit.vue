@@ -19,6 +19,8 @@
           </h3>
           <hr>
           <b-form-input v-model="titleToWrite" placeholder="Enter a title"></b-form-input>
+          <b-form-input v-model="subtitleToWrite" placeholder="Enter a subtitle"></b-form-input>
+          <b-form-input v-model="mainImageURL" placeholder="Enter the URL of the main image"></b-form-input>
           <editor-menu-bar v-if="editor" :editor="editor" v-slot="{ commands, isActive }">
             <div class="menubar" style="text-align:center; width:100%">
                 <button
@@ -237,17 +239,29 @@ export default {
           app.isUploading = true
           var errors = false
           var protocol = 'news://'
-          var refID = ''
-          
-          if(app.titleToWrite !== ''){
-            refID = app.titleToWrite
-          }
-          var uncompressed = app.html
-          var compressed = LZUTF8.compress(uncompressed,{outputEncoding: 'Base64'})
-          
+                    
+          var uncompressedText = app.html
+          var compressedText = LZUTF8.compress(uncompressedText,{outputEncoding: 'Base64'})
+
+          var uncompressedTitle = app.titleToWrite
+          var compressedTitle = LZUTF8.compress(uncompressedTitle,{outputEncoding: 'Base64'})
+
+          var uncompressedSubtitle = app.subtitleToWrite
+          var compressedSubtitle = LZUTF8.compress(uncompressedSubtitle,{outputEncoding: 'Base64'})
+
+          var uncompressedURL = app.mainImageURL
+          var compressedURL = LZUTF8.compress(uncompressedURL,{outputEncoding: 'Base64'})
+
+          var dataToWrite = JSON.stringify({
+            title: compressedTitle,
+            subtitle: compressedSubtitle,
+            image: compressedURL,
+            text: compressedText
+          })
+
           if(errors === false){
             app.workingmessage = 'Uploading data to the blockchain, please wait and don\'t refresh the page...'
-            app.scrypta.write(app.unlockPwd, compressed, '', refID , protocol, app.public_address + ':' + app.encrypted_wallet, app.news.uuid).then(res => {
+            app.scrypta.write(app.unlockPwd, dataToWrite, '', '' , protocol, app.public_address + ':' + app.encrypted_wallet, app.news.uuid).then(res => {
               if(res.uuid !== undefined){
                 alert('Data written correctly into the blockchain, wait at least 2 minutes and refresh the page!')
                 this.isUploading = false
@@ -325,8 +339,18 @@ export default {
                       window.location = '/#/news/' + app.$route.params.uuid
                     }else{
                       app.news = response.data.data[0]
-                      app.news.data = LZUTF8.decompress(app.news.data, { inputEncoding: 'Base64' });
-                      app.titleToWrite = app.news.refID
+                      var dataHTML = ''
+                      if(app.news.data.title !== undefined){
+                        app.titleToWrite = LZUTF8.decompress(app.news.data.title, { inputEncoding: 'Base64' });
+                        app.subtitleToWrite = LZUTF8.decompress(app.news.data.subtitle, { inputEncoding: 'Base64' });
+                        app.mainImageURL = LZUTF8.decompress(app.news.data.image, { inputEncoding: 'Base64' });
+                        app.news.data.text = LZUTF8.decompress(app.news.data.text, { inputEncoding: 'Base64' });
+                        dataHTML = app.news.data.text
+                      }else{
+                        app.titleToWrite = app.news.refID
+                        app.news.data = LZUTF8.decompress(app.news.data, { inputEncoding: 'Base64' });
+                        dataHTML = app.news.data
+                      }
                       app.editor.destroy()
                       app.editor = new Editor({
                         extensions: [
@@ -349,12 +373,29 @@ export default {
                           new Underline(),
                           new History(),
                         ],
-                        content: app.news.data,
+                        content: dataHTML,
                         onUpdate: ({ getHTML }) => {
                           this.html = getHTML()
-                          var uncompressed = this.html
-                          var compressed = LZUTF8.compress(uncompressed,{outputEncoding: 'Base64'})
-                          let chunks = Math.ceil(compressed.length / 74)
+                          var uncompressedText = this.html
+                          var compressedText = LZUTF8.compress(uncompressedText,{outputEncoding: 'Base64'})
+
+                          var uncompressedTitle = app.titleToWrite
+                          var compressedTitle = LZUTF8.compress(uncompressedTitle,{outputEncoding: 'Base64'})
+
+                          var uncompressedSubtitle = app.subtitleToWrite
+                          var compressedSubtitle = LZUTF8.compress(uncompressedSubtitle,{outputEncoding: 'Base64'})
+
+                          var uncompressedURL = app.mainImageURL
+                          var compressedURL = LZUTF8.compress(uncompressedURL,{outputEncoding: 'Base64'})
+
+                          var dataToWrite = JSON.stringify({
+                            title: compressedTitle,
+                            subtitle: compressedSubtitle,
+                            image: compressedURL,
+                            text: compressedText
+                          })
+
+                          let chunks = Math.ceil(dataToWrite.length / 7500)
                           this.chunks = chunks
                           this.fees = chunks * 0.001
                         }
@@ -387,6 +428,8 @@ export default {
       news: '',
       newsText: '',
       titleToWrite: '',
+      subtitleToWrite: '',
+      mainImageURL: '',
       editor: new Editor({
         extensions: [
           new Blockquote(),

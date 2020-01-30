@@ -25,7 +25,12 @@
         <div v-if="!isLoading">
           <div v-for="news in feed" v-bind:key="news._id" class="feed" style="position:relative">
             <div v-if="news.data !== 'upvote' && news.data !== 'downvote'">
-              <h2 style="margin:0; padding:0;">{{ news.refID }}</h2>
+              <div v-if="!news.data.title">
+               <h2>{{ news.refID }}</h2>
+              </div>
+              <div v-if="news.data.title">
+               <h2>{{ news.data.title }}</h2>
+              </div>
               <div style="font-size:15px;">Written at block <i>{{ news.block }}</i></div>
               <div v-if="counters" class="counters">
                 <div v-for="counter in counters" v-bind:key="counter.uuid">
@@ -52,7 +57,7 @@
 </template>
 
 <script>
-
+var LZUTF8 = require('lzutf8');
 export default {
   name: 'home',
   mounted : async function(){
@@ -85,6 +90,13 @@ export default {
                     if(response.data.data.length > 0){
                       for(let x in response.data.data){
                         if(response.data.data[x].data !== 'upvote' && response.data.data[x].data !== 'downvote'){
+                          let nws = response.data.data[x].data
+                          if(nws.title !== undefined){
+                            response.data.data[x].data.title = LZUTF8.decompress(nws.title, { inputEncoding: 'Base64' });
+                            response.data.data[x].data.subtitle = LZUTF8.decompress(nws.subtitle, { inputEncoding: 'Base64' });
+                            response.data.data[x].data.image = LZUTF8.decompress(nws.image, { inputEncoding: 'Base64' });
+                            response.data.data[x].data.text = LZUTF8.decompress(nws.text, { inputEncoding: 'Base64' });
+                          }
                           app.feed.push(response.data.data[x])
                         }
                       }

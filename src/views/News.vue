@@ -23,7 +23,18 @@
       <div class="col-md-8 offset-md-2">
         <div v-if="isLoading">Loading news from the blockchain...</div>
         <div v-if="!isLoading" class="news-head">
-            <h1 style="margin:0; padding:0; margin-bottom:-30px">{{ news.refID }}</h1><br>
+            <div v-if="!news.data.title">
+              <h1 style="margin:0; padding:0; margin-bottom:-30px">{{ news.refID }}</h1><br>
+            </div>
+            <div v-if="news.data.title">
+              <h1 style="margin:0; padding:0; margin-bottom:-30px">{{ news.data.title }}</h1><br>
+            </div>
+            <div v-if="news.data.subtitle">
+              <h3 style="margin:0; padding:0; margin-bottom:-30px">{{ news.data.subtitle }}</h3><br>
+            </div>
+            <div v-if="news.data.image"><br>
+              <img :src="news.data.image" width="100%">
+            </div>
             <div style="font-size:15px; margin-top:0px">
             <v-gravatar :email="news.address" height="80" style="margin-right:20px; margin-top:28px; float:left" /><br>
             Written by <b><a :href="'/#/author/' + news.address">{{ news.address }}</a></b></div>
@@ -51,7 +62,12 @@
               <b><b-icon-arrow-down></b-icon-arrow-down> {{ downvotes }}</b> DOWNVOTES
             </div>
             <hr>
-            <div class="news news-text" v-html="news.data"></div>
+            <div v-if="!news.data.text">
+              <div class="news news-text" v-html="news.data"></div>
+            </div>
+            <div v-if="news.data.text">
+              <div class="news news-text" v-html="news.data.text"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -91,7 +107,14 @@ export default {
                     uuid: app.$route.params.uuid
                   }).then(response => {
                     app.news = response.data.data[0]
-                    app.news.data = LZUTF8.decompress(app.news.data, { inputEncoding: 'Base64' });
+                    if(app.news.data.title !== undefined){
+                      app.news.data.title = LZUTF8.decompress(app.news.data.title, { inputEncoding: 'Base64' });
+                      app.news.data.subtitle = LZUTF8.decompress(app.news.data.subtitle, { inputEncoding: 'Base64' });
+                      app.news.data.image = LZUTF8.decompress(app.news.data.image, { inputEncoding: 'Base64' });
+                      app.news.data.text = LZUTF8.decompress(app.news.data.text, { inputEncoding: 'Base64' });
+                    }else{
+                      app.news.data = LZUTF8.decompress(app.news.data, { inputEncoding: 'Base64' });
+                    }
                     app.time = new Date(app.news.time * 1000).toUTCString()
                     app.isLoading = false
                     app.readCounters()
