@@ -1,5 +1,9 @@
 <template>
   <div class="container" style="margin-top:40px">
+    <vue-headful
+      title="Scrypta Decentralized News Feed"
+      description="Read articles from trusted sources."
+    />
     <div class="row">
       <div class="col-12">
         <h1>Scrypta News</h1>

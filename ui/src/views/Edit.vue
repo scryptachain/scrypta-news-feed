@@ -1,5 +1,9 @@
 <template>
   <div class="container" style="margin-top: 40px">
+    <vue-headful
+      title="Scrypta Decentralized News Feed"
+      description="Read articles from trusted sources."
+    />
     <b-modal v-model="passwordShow" hide-footer title="Write news on the blockchain">
       <b-form-input v-if="!isUploading" v-model="unlockPwd" type="password" placeholder="Enter wallet password"></b-form-input><br>
       <div v-if="!isUploading" @click.prevent="unlockWallet" class="btn btn-primary">Write</div>
