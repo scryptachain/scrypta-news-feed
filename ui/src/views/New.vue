@@ -12,6 +12,7 @@
           <b-form-input v-model="titleToWrite" placeholder="Enter a title"></b-form-input>
           <b-form-input v-model="subtitleToWrite" placeholder="Enter a subtitle"></b-form-input>
           <b-form-input v-model="mainImageURL" placeholder="Enter the URL of the main image"></b-form-input>
+          <b-form-tags v-model="tagsToWrite" placeholder="Enter tags"></b-form-tags>
           <editor-menu-bar :editor="editor" v-slot="{ commands, isActive }">
             <div class="menubar" style="text-align:center; width:100%">
                 <button
@@ -238,11 +239,15 @@ export default {
           var uncompressedURL = app.mainImageURL
           var compressedURL = LZUTF8.compress(uncompressedURL,{outputEncoding: 'Base64'})
 
+          var uncompressedTags = JSON.stringify(app.tagsToWrite)
+          var compressedTags = LZUTF8.compress(uncompressedTags,{outputEncoding: 'Base64'})
+
           var dataToWrite = JSON.stringify({
             title: compressedTitle,
             subtitle: compressedSubtitle,
             image: compressedURL,
-            text: compressedText
+            text: compressedText,
+            tags: compressedTags
           })
 
           if(errors === false){
@@ -318,6 +323,7 @@ export default {
       isUploading: false,
       titleToWrite: '',
       subtitleToWrite: '',
+      tagsToWrite: [],
       mainImageURL: '',
       editor: new Editor({
         extensions: [
@@ -356,11 +362,15 @@ export default {
           var uncompressedURL = app.mainImageURL
           var compressedURL = LZUTF8.compress(uncompressedURL,{outputEncoding: 'Base64'})
 
+          var uncompressedTags = JSON.stringify(app.tagsToWrite)
+          var compressedTags = LZUTF8.compress(uncompressedTags,{outputEncoding: 'Base64'})
+
           var dataToWrite = JSON.stringify({
             title: compressedTitle,
             subtitle: compressedSubtitle,
             image: compressedURL,
-            text: compressedText
+            text: compressedText,
+            tags: compressedTags
           })
 
           let chunks = Math.ceil(dataToWrite.length / 7500)

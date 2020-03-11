@@ -2,20 +2,23 @@
   <div class="container" style="margin-top:40px">
     <div class="row">
       <div class="col-12">
-        <h1>Scrypta News Feed</h1>
-        <h3>is a minimal Proof of Concept of decentralized and verified content written by trustable addresses. 
-        Anyone can interact with the news by voting it.</h3>
+        <h1>Scrypta News</h1>
+        <h3>read articles from trusted sources.</h3>
         <hr>
         <div v-if="isLoading">Loading news from the blockchain...</div>
         <div v-if="!isLoading">
           <div v-for="news in feed" v-bind:key="news._id" class="feed" style="position:relative">
             <div v-if="news.data !== 'upvote' && news.data !== 'downvote'">
-              <v-gravatar :email="news.address" height="85" class="gravatar-home" style="margin-right:20px; margin-top:0px; float:left" />
+              <v-gravatar v-if="!news.data.image" :email="news.address" height="85" class="gravatar-home" style="margin-right:20px; margin-top:0px; float:left" />
+              <div v-if="news.data.image" :style="'margin-right:20px; width:85px; height:85px; background-position:center; background-repeat:no-repeat; background-size:cover; margin-top:0px; float:left; background-image:url(\''+news.data.image+'\')'"></div>
               <div v-if="!news.data.title">
                <h3 style="margin:0; padding:0; padding-right:40px">{{ news.refID }}</h3>
               </div>
               <div v-if="news.data.title">
                <h3 style="margin:0; padding:0; padding-right:40px">{{ news.data.title }}</h3>
+              </div>
+              <div v-if="news.data.tags">
+               <span v-for="tag in news.data.tags" v-bind:key="tag" style="margin:0; padding:0; padding-right:10px">#{{ tag }}</span>
               </div>
               <div style="font-size:15px;">
                 Written by <b><a :href="'/#/author/' + news.address">{{ news.address.substr(0,3) }}...{{ news.address.substr(-3) }}</a></b> at block <i>{{ news.block }}</i>
@@ -70,6 +73,12 @@ export default {
                         response.data.data[x].data.subtitle = LZUTF8.decompress(nws.subtitle, { inputEncoding: 'Base64' });
                         response.data.data[x].data.image = LZUTF8.decompress(nws.image, { inputEncoding: 'Base64' });
                         response.data.data[x].data.text = LZUTF8.decompress(nws.text, { inputEncoding: 'Base64' });
+                        if(nws.tags !== undefined){
+                          response.data.data[x].data.tags = LZUTF8.decompress(nws.tags, { inputEncoding: 'Base64' });
+                          response.data.data[x].data.tags = response.data.data[x].data.tags.split(',')
+                        }else{
+                          response.data.data[x].data.tags = []
+                        }
                       }
                       app.feed.push(response.data.data[x])
                     }

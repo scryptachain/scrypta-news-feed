@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/precache-manifest.d6b1a093d49630ca34551867c6496266.js"
+  "/precache-manifest.54e2d19bd06ec2780e441721e90c295a.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "scrypta-news-feed"});

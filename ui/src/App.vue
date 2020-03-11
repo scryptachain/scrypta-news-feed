@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <b-navbar toggleable="lg" type="dark" variant="dark">
-      <b-navbar-brand href="/#/"><img height="24" style="float:left; margin-right:10px" src="./assets/logo.png"> News Feed</b-navbar-brand>
+    <b-navbar toggleable="lg" type="light" variant="light">
+      <b-navbar-brand href="/#/"><img height="30" style="float:left; margin-right:10px" src="./assets/logo.png"> Scrypta News</b-navbar-brand>
 
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
@@ -12,7 +12,7 @@
           <a href="/#/login" v-if="!user">
             <b-button size="sm" class="my-2 my-sm-0">Login</b-button>
           </a>
-          <a style="color:#fff; font-size:30px; margin-right:10px; margin-top:-7px" :href="'/#/author/' + user" v-if="user">
+          <a style="color:#333; font-size:30px; margin-right:10px; margin-top:-7px" :href="'/#/author/' + user" v-if="user">
             <b-icon-document-text></b-icon-document-text>
           </a>
           <a href="#" v-if="user">
@@ -81,6 +81,8 @@ export default {
   @import url('https://rsms.me/inter/inter.css');
   html, #app { font-family: 'Inter', sans-serif; }
   @media screen and (max-width: 767px){
+    .sharing-buttons{text-align:center;}
+    .sharing-buttons .btn{margin:10px!important;}
     h3{ font-size: 14px!important; }
     .gravatar-home{height:60px; margin-top: 3px!important; margin-right:10px!important; display:none}
     .news-head{text-align:center!important}

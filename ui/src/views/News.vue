@@ -1,5 +1,9 @@
 <template>
   <div>
+    <vue-headful
+          :title="news.data.title"
+          :description="news.data.subtitle"
+      />
     <b-modal v-model="showTipModal" class="text-center" hide-footer title="Tip User sending Lyra">
       Send a tip to the user directly from here!<br><br>
       <b-form-input v-model="unlockPwd" type="password" placeholder="Enter wallet password"></b-form-input><br>
@@ -32,6 +36,9 @@
             <div v-if="news.data.subtitle">
               <h3 style="margin:0; padding:0; margin-bottom:-30px">{{ news.data.subtitle }}</h3><br>
             </div>
+            <div v-if="news.data.tags">
+              <span v-for="tag in news.data.tags" v-bind:key="tag" style="margin:0; padding:0; padding-right:10px">#{{ tag }}</span>
+            </div>
             <div v-if="news.data.image"><br>
               <img :src="news.data.image" width="100%">
             </div>
@@ -43,6 +50,38 @@
             <a :href="'https://proof.scryptachain.org/#/uuid/' + news.uuid" target="_blank">
               Show Proof of Existence <b-icon-arrow-right></b-icon-arrow-right>
             </a>
+            <hr>
+            <social-sharing :url="'https://news.scryptachain.org/#/news/' + news.uuid"
+              :title="news.data.title"
+              :description="news.data.text.replace(/<\/?[^>]+(>|$)/g, '').substr(0,255) + '...'"
+              :quote="news.data.subtitle"
+              :hashtags="JSON.stringify(news.data.tags)"
+              inline-template>
+              <div class="sharing-buttons">
+                <h5>Share on:</h5>
+                  <network network="email">
+                    <b-button>Email</b-button>
+                  </network>
+                  <network network="facebook">
+                    <b-button>Facebook</b-button>
+                  </network>
+                  <network network="linkedin">
+                    <b-button>Linkedin</b-button>
+                  </network>
+                  <network network="reddit">
+                    <b-button>Reddit</b-button>
+                  </network>
+                  <network network="telegram">
+                    <b-button>Telegram</b-button>
+                  </network>
+                  <network network="twitter">
+                    <b-button>Twitter</b-button>
+                  </network>
+                  <network network="whatsapp">
+                    <b-button>Whatsapp</b-button>
+                  </network>
+              </div>
+            </social-sharing>
             <hr>
             <div style="width:100%; height:30px;" class="counters" v-if="user">
               <b-button size="sm" style="float:left" variant="success" v-on:click="openUpvote" class="my-2 my-sm-0"> 
@@ -112,6 +151,12 @@ export default {
                       app.news.data.subtitle = LZUTF8.decompress(app.news.data.subtitle, { inputEncoding: 'Base64' });
                       app.news.data.image = LZUTF8.decompress(app.news.data.image, { inputEncoding: 'Base64' });
                       app.news.data.text = LZUTF8.decompress(app.news.data.text, { inputEncoding: 'Base64' });
+                      if(app.news.data.tags !== undefined){
+                        app.news.data.tags = LZUTF8.decompress(app.news.data.tags, { inputEncoding: 'Base64' });
+                        app.news.data.tags = app.news.data.tags.split(',')
+                      }else{
+                        app.news.data.tags = []
+                      }
                     }else{
                       app.news.data = LZUTF8.decompress(app.news.data, { inputEncoding: 'Base64' });
                     }
@@ -275,6 +320,10 @@ export default {
 </script>
 
 <style>
+  .sharing-buttons .btn{
+    margin-right: 10px;
+    display:inline-block;
+  }
   .node-badge{
     position:fixed; bottom:-3px; font-size:10px; padding:8px; right:10px; z-index:9999;
   }

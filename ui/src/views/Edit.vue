@@ -252,11 +252,15 @@ export default {
           var uncompressedURL = app.mainImageURL
           var compressedURL = LZUTF8.compress(uncompressedURL,{outputEncoding: 'Base64'})
 
+          var uncompressedTags = JSON.stringify(app.tagsToWrite)
+          var compressedTags = LZUTF8.compress(uncompressedTags,{outputEncoding: 'Base64'})
+
           var dataToWrite = JSON.stringify({
             title: compressedTitle,
             subtitle: compressedSubtitle,
             image: compressedURL,
-            text: compressedText
+            text: compressedText,
+            tags: compressedTags
           })
 
           if(errors === false){
@@ -344,6 +348,10 @@ export default {
                         app.titleToWrite = LZUTF8.decompress(app.news.data.title, { inputEncoding: 'Base64' });
                         app.subtitleToWrite = LZUTF8.decompress(app.news.data.subtitle, { inputEncoding: 'Base64' });
                         app.mainImageURL = LZUTF8.decompress(app.news.data.image, { inputEncoding: 'Base64' });
+                        if(app.news.data.tags !== undefined){
+                          app.tagsToWrite = LZUTF8.decompress(app.news.data.tags, { inputEncoding: 'Base64' });
+                          app.tagsToWrite = app.tagsToWrite.split(',')
+                        }
                         app.news.data.text = LZUTF8.decompress(app.news.data.text, { inputEncoding: 'Base64' });
                         dataHTML = app.news.data.text
                       }else{
@@ -388,11 +396,15 @@ export default {
                           var uncompressedURL = app.mainImageURL
                           var compressedURL = LZUTF8.compress(uncompressedURL,{outputEncoding: 'Base64'})
 
+                          var uncompressedTags = JSON.stringify(app.tagsToWrite)
+                          var compressedTags = LZUTF8.compress(uncompressedTags,{outputEncoding: 'Base64'})
+
                           var dataToWrite = JSON.stringify({
                             title: compressedTitle,
                             subtitle: compressedSubtitle,
                             image: compressedURL,
-                            text: compressedText
+                            text: compressedText,
+                            tags: compressedTags
                           })
 
                           let chunks = Math.ceil(dataToWrite.length / 7500)
@@ -429,6 +441,7 @@ export default {
       newsText: '',
       titleToWrite: '',
       subtitleToWrite: '',
+      tagsToWrite: [],
       mainImageURL: '',
       editor: new Editor({
         extensions: [
