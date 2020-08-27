@@ -1,14 +1,15 @@
 <template>
   <div>
     <vue-headful
-          :title="news.data.title"
-          :description="news.data.subtitle"
+        v-if="news.data !== undefined"
+        :title="news.data.title"
+        :description="news.data.subtitle"
       />
     <b-modal v-model="showTipModal" class="text-center" hide-footer title="Tip User sending Lyra">
       Send a tip to the user directly from here!<br><br>
       <b-form-input v-model="unlockPwd" type="password" placeholder="Enter wallet password"></b-form-input><br>
       <b-input-group prepend="LYRA" class="mb-2 mr-sm-2 mb-sm-0">
-        <b-input  v-model="amountTip" id="inline-form-input-username" placeholder="Amount you want to send"></b-input>
+        <b-input v-model="amountTip" id="inline-form-input-username" placeholder="Amount you want to send"></b-input>
       </b-input-group><br>
       <div v-if="!isUploading" @click.prevent="tip" style="width:100%" class="btn btn-primary">Tip</div>
     </b-modal>
@@ -39,7 +40,7 @@
             <div v-if="news.data.tags">
               <span v-for="tag in news.data.tags" v-bind:key="tag" style="margin:0; padding:0; padding-right:10px">#{{ tag }}</span>
             </div>
-            <div v-if="news.data.image"><br>
+            <div v-if="news.data.image && news.data.image.indexOf('file://') === -1 && news.data.image.indexOf('http://') === -1 && news.data.image.indexOf('https://') === 0"><br>
               <img :src="news.data.image" width="100%">
             </div>
             <div style="font-size:15px; margin-top:0px">
@@ -153,7 +154,7 @@ export default {
                       app.news.data.text = LZUTF8.decompress(app.news.data.text, { inputEncoding: 'Base64' });
                       if(app.news.data.tags !== undefined){
                         app.news.data.tags = LZUTF8.decompress(app.news.data.tags, { inputEncoding: 'Base64' });
-                        app.news.data.tags = app.news.data.tags.split(',')
+                        app.news.data.tags = JSON.parse(app.news.data.tags)
                       }else{
                         app.news.data.tags = []
                       }

@@ -12,8 +12,8 @@
           <a href="/#/login" v-if="!user">
             <b-button size="sm" class="my-2 my-sm-0">Login</b-button>
           </a>
-          <a style="color:#333; font-size:30px; margin-right:10px; margin-top:-7px" :href="'/#/author/' + user" v-if="user">
-            <b-icon-document-text></b-icon-document-text>
+          <a style="color:#333; margin-right:10px;" :href="'/#/author/' + user" v-if="user">
+            <b-button size="sm" style="background-color:#d8213b; border-color:#d8213b">Publications</b-button>
           </a>
           <a href="#" v-if="user">
             <b-button size="sm" v-on:click="logout" class="my-2 my-sm-0">Logout</b-button>

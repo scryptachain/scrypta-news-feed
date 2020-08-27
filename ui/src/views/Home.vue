@@ -5,26 +5,28 @@
       description="Read articles from trusted sources."
     />
     <div class="row">
-      <div class="col-12">
+      <div class="col-md-8 offset-md-2">
         <h1>Scrypta News</h1>
         <h3>read articles from trusted sources.</h3>
         <hr>
         <div v-if="isLoading">Loading news from the blockchain...</div>
         <div v-if="!isLoading">
-          <div v-for="news in feed" v-bind:key="news._id" class="feed" style="position:relative">
-            <div v-if="news.data !== 'upvote' && news.data !== 'downvote'">
-              <v-gravatar v-if="!news.data.image" :email="news.address" height="85" class="gravatar-home" style="margin-right:20px; margin-top:0px; float:left" />
-              <div v-if="news.data.image" :style="'margin-right:20px; width:85px; height:85px; background-position:center; background-repeat:no-repeat; background-size:cover; margin-top:0px; float:left; background-image:url(\''+news.data.image+'\')'"></div>
+          <div v-for="news in feed" v-bind:key="news._id" class="feed" style="position:relative; float:none; overflow:hidden">
+            <div v-if="news.data !== 'upvote' && news.data !== 'downvote'" style="position:relative">
+              <a :href="'/#/news/' + news.uuid" style="position:absolute;bottom:40px; cursor:pointer; right:0;">
+                <b-icon-arrow-right class="arrow-dx"></b-icon-arrow-right>
+              </a>
+              <div v-if="news.data.image && news.data.image.indexOf('file://') === -1 && news.data.image.indexOf('http://') === -1 && news.data.image.indexOf('https://') === 0"><img style="margin-bottom:20px" :src="news.data.image" width="100%"></div>
               <div v-if="!news.data.title">
-               <h3 style="margin:0; padding:0; padding-right:40px">{{ news.refID }}</h3>
+               <h3 style="margin:0; padding:0; font-size:17px!important; font-weight:bold; padding-right:40px">{{ news.refID }}</h3>
               </div>
               <div v-if="news.data.title">
-               <h3 style="margin:0; padding:0; padding-right:40px">{{ news.data.title }}</h3>
+               <h3 style="margin:0; padding:0; font-size:17px!important; font-weight:bold; padding-right:40px">{{ news.data.title }}</h3>
               </div>
               <div v-if="news.data.tags">
-               <span v-for="tag in news.data.tags" v-bind:key="tag" style="margin:0; padding:0; padding-right:10px">#{{ tag }}</span>
+               <span v-for="tag in news.data.tags" v-bind:key="tag" style="margin:0; padding:0; font-size:13px; padding-right:10px">#{{ tag }}</span>
               </div>
-              <div style="font-size:15px;">
+              <div style="font-size:11px;">
                 Written by <b><a :href="'/#/author/' + news.address">{{ news.address.substr(0,3) }}...{{ news.address.substr(-3) }}</a></b> at block <i>{{ news.block }}</i>
               </div>
               <div v-if="counters" class="counters">
@@ -35,9 +37,6 @@
                   </div>
                 </div>
               </div>
-              <a :href="'/#/news/' + news.uuid">
-                <b-icon-arrow-right class="arrow-dx"></b-icon-arrow-right>
-              </a>
               <hr>
             </div>
           </div>
@@ -72,6 +71,7 @@ export default {
                   }).then(response => {
                     for(let x in response.data.data){
                       let nws = response.data.data[x].data
+                      
                       if(nws.title !== undefined){
                         response.data.data[x].data.title = LZUTF8.decompress(nws.title, { inputEncoding: 'Base64' });
                         response.data.data[x].data.subtitle = LZUTF8.decompress(nws.subtitle, { inputEncoding: 'Base64' });
@@ -79,7 +79,8 @@ export default {
                         response.data.data[x].data.text = LZUTF8.decompress(nws.text, { inputEncoding: 'Base64' });
                         if(nws.tags !== undefined){
                           response.data.data[x].data.tags = LZUTF8.decompress(nws.tags, { inputEncoding: 'Base64' });
-                          response.data.data[x].data.tags = response.data.data[x].data.tags.split(',')
+                          response.data.data[x].data.tags = JSON.parse(response.data.data[x].data.tags)
+                          
                         }else{
                           response.data.data[x].data.tags = []
                         }

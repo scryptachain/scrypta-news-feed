@@ -30,12 +30,12 @@
           <div v-for="news in feed" v-bind:key="news._id" class="feed" style="position:relative">
             <div v-if="news.data !== 'upvote' && news.data !== 'downvote'">
               <div v-if="!news.data.title">
-               <h2>{{ news.refID }}</h2>
+               <h2 style="font-size:15px; font-weight:bold;">{{ news.refID }}</h2>
               </div>
               <div v-if="news.data.title">
-               <h2>{{ news.data.title }}</h2>
+               <h2 style="font-size:15px; font-weight:bold;">{{ news.data.title }}</h2>
               </div>
-              <div style="font-size:15px;">Written at block <i>{{ news.block }}</i></div>
+              <div style="font-size:12px;">Written at block <i>{{ news.block }}</i></div>
               <div v-if="counters" class="counters">
                 <div v-for="counter in counters" v-bind:key="counter.uuid">
                   <div v-if="counter.uuid === news.uuid">
@@ -45,10 +45,10 @@
                 </div>
               </div>
               <a :href="'/#/news/' + news.uuid">
-                <b-icon-arrow-right class="arrow-dx"></b-icon-arrow-right>
+                <b-icon-arrow-right style="font-size:30px!important" class="arrow-dx"></b-icon-arrow-right>
               </a>
               <a v-if="author === user" :href="'/#/edit/' + news.uuid">
-                <b-icon-pencil class="pencil-dx"></b-icon-pencil>
+                <b-icon-pencil  style="font-size:28px!important;" class="pencil-dx"></b-icon-pencil>
               </a>
               <hr>
             </div>
@@ -112,7 +112,15 @@ export default {
                     protocol: 'I://',
                     address: app.author
                   }).then(async result => {
-                    app.identities = result.data.data
+                    console.log(result.data.data)
+                    app.identities = []
+                    for(let k in result.data.data){
+                      let id = result.data.data[k]
+                      if(app.check.indexOf(id.refID) === -1){
+                        app.check.push(id.refID)
+                        app.identities.push(id)
+                      }
+                    }
                   })
                 }
               }
@@ -158,6 +166,7 @@ export default {
       author: '',
       isLoading: true,
       identities: [],
+      check: [],
       counters: [],
       user: '',
       voters: {}
