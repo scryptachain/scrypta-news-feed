@@ -97,4 +97,13 @@ export default {
   .news-text{text-align:justify; font-size: 18px; font-weight:300; padding-bottom:60px; line-height: 28px;}
   .news-text img {width:100%!important;}
   body, html {overflow-x:hidden}
+  .arrow-dx {
+    color: #000;
+    font-size: 40px !important;
+    position: absolute;
+    top: -10px;
+    right: 0;
+  }
+  .news img {height:auto!important; margin-bottom:20px!important;}
+  .counters {margin-top:5px;}
 </style>

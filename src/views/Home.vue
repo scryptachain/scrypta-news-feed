@@ -32,6 +32,9 @@
               <div style="font-size:11px;" v-if="news.data.creator">
                 Written by <b><a :href="'/#/author/' + news.address">{{ news.data.creator }}</a></b> at block <i>{{ news.block }}</i>
               </div>
+              <div style="font-size:11px;" v-if="news.data.publisher">
+                Published by <a :href="'/#/publisher/' + news.data.publisher"><b v-if="publishers[news.data.publisher]">{{ publishers[news.data.publisher] }}</b><b v-if="!publishers[news.data.publisher]" style="font-size:9px">{{ news.data.publisher }}</b></a>
+              </div>
               <div style="font-size:11px;" v-if="news.data.link">
                 Original content at <b style="font-size:9px"><a :href="news.data.link" target="_blank">{{ news.data.link }}</a></b>
               </div>
@@ -56,7 +59,7 @@
 
 <script>
 var LZUTF8 = require('lzutf8');
-
+let publishers = require('@/publishers.json')
 export default {
   name: 'home',
   mounted : function(){
@@ -81,6 +84,7 @@ export default {
                         let verify = await app.scrypta.verifyMessage(nws.pubkey, nws.signature, nws.message)
                         if(verify !== false){
                           response.data.data[x].data = JSON.parse(response.data.data[x].data.message)
+                          response.data.data[x].data.publisher = nws.pubkey
                           response.data.data[x].data.title = LZUTF8.decompress(response.data.data[x].data.title, { inputEncoding: 'Base64' })
                           response.data.data[x].data.text = LZUTF8.decompress(response.data.data[x].data.compressed, { inputEncoding: 'Base64' })
                           response.data.data[x].data.tags = LZUTF8.decompress(response.data.data[x].data.tags, { inputEncoding: 'Base64' })
@@ -99,7 +103,6 @@ export default {
                           if(nws.tags !== undefined){
                             response.data.data[x].data.tags = LZUTF8.decompress(nws.tags, { inputEncoding: 'Base64' });
                             response.data.data[x].data.tags = JSON.parse(response.data.data[x].data.tags)
-                            
                           }else{
                             response.data.data[x].data.tags = []
                           }
@@ -150,6 +153,7 @@ export default {
       axios: window.axios,
       nodes: [],
       connected: '',
+      publishers: publishers,
       feed: [],
       isLoading: true,
       counters: [],
@@ -165,12 +169,5 @@ export default {
   }
   .feed img{
     max-width:100%
-  }
-  .arrow-dx{
-    color:#000;
-    font-size:60px!important;
-    position:absolute;
-    top:-10px;
-    right:0;
   }
 </style>

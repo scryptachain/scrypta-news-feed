@@ -103,6 +103,20 @@
               </h3>
               <br />
             </div>
+            <div v-if="news.data.publisher">
+              <br />
+              Published by
+              <a :href="'/#/publisher/' + news.data.publisher"
+                ><b v-if="publishers[news.data.publisher]">{{
+                  publishers[news.data.publisher]
+                }}</b
+                ><b
+                  v-if="!publishers[news.data.publisher]"
+                  style="font-size: 9px"
+                  >{{ news.data.publisher }}</b
+                ></a
+              >
+            </div>
             <div v-if="news.data.tags">
               <span
                 v-for="tag in news.data.tags"
@@ -162,13 +176,13 @@
             <hr />
 
             <div style="font-size: 13px" v-if="news.data.link">
-              Original content parsed from:<br>
+              Original content parsed from:<br />
               <b style="font-size: 13px"
                 ><a :href="news.data.link" target="_blank">{{
                   news.data.link
                 }}</a></b
               >
-              <hr>
+              <hr />
             </div>
             <social-sharing
               :url="'https://news.scryptachain.org/#/news/' + news.uuid"
@@ -261,7 +275,7 @@
 
 <script>
 var LZUTF8 = require("lzutf8");
-
+let publishers = require("@/publishers.json");
 export default {
   name: "home",
   mounted: function () {
@@ -297,9 +311,11 @@ export default {
                       app.news.data.message
                     );
                     if (verify !== false) {
+                      let publisher = app.news.data.pubkey;
                       app.news.data = JSON.parse(
                         response.data.data[0].data.message
                       );
+                      app.news.data.publisher = publisher;
                       app.news.data.title = LZUTF8.decompress(
                         app.news.data.title,
                         { inputEncoding: "Base64" }
@@ -534,6 +550,7 @@ export default {
       showUpvoteModal: false,
       showDownvoteModal: false,
       isUploading: false,
+      publishers: publishers,
       scrypta: window.ScryptaCore,
       axios: window.axios,
       nodes: [],
@@ -565,12 +582,5 @@ export default {
 }
 .news img {
   max-width: 100%;
-}
-.arrow-dx {
-  color: #000;
-  font-size: 60px !important;
-  position: absolute;
-  top: -10px;
-  right: 0;
 }
 </style>

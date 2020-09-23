@@ -6,6 +6,7 @@ import Login from './views/Login.vue'
 import News from './views/News.vue'
 import Author from './views/Author.vue'
 import Edit from './views/Edit.vue'
+import Publisher from './views/Publisher.vue'
 import Gravatar from 'vue-gravatar'
 
 Vue.use(Router)
@@ -43,6 +44,11 @@ export default new Router({
       path: '/author/:address',
       name: 'Author',
       component: Author
+    },
+    {
+      path: '/publisher/:pubkey',
+      name: 'Publisher',
+      component: Publisher
     }
   ]
 })

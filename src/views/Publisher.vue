@@ -2,12 +2,12 @@
   <div class="container" style="margin-top:40px">
     <vue-headful
       title="Scrypta Decentralized News Feed"
-      description="Read articles from trusted sources."
+      :description="'Read articles from '+publishers[$route.params.pubkey]+'.'"
     />
     <div class="row">
       <div class="col-md-8 offset-md-2">
-        <h1>Scrypta News</h1>
-        <h3>read articles from trusted sources.</h3>
+        <h1>{{ publishers[$route.params.pubkey] }}</h1>
+        <h3>trusted blockchain feed.</h3>
         <hr>
         <div v-if="isLoading">Loading news from the blockchain...</div>
         <div v-if="!isLoading">
@@ -26,8 +26,17 @@
               <div v-if="news.data.tags">
                <span v-for="tag in news.data.tags" v-bind:key="tag" style="margin:0; padding:0; font-size:13px; padding-right:10px">#{{ tag }}</span>
               </div>
-              <div style="font-size:11px;">
+              <div style="font-size:11px;" v-if="!news.data.creator">
                 Written by <b><a :href="'/#/author/' + news.address">{{ news.address.substr(0,3) }}...{{ news.address.substr(-3) }}</a></b> at block <i>{{ news.block }}</i>
+              </div>
+              <div style="font-size:11px;" v-if="news.data.creator">
+                Written by <b><a :href="'/#/author/' + news.address">{{ news.data.creator }}</a></b> at block <i>{{ news.block }}</i>
+              </div>
+              <div style="font-size:11px;" v-if="news.data.publisher">
+                Published by <a :href="'/#/publisher/' + news.data.publisher"><b v-if="publishers[news.data.publisher]" style="font-size:9px">{{ publishers[news.data.publisher] }}</b><b v-if="!publishers[news.data.publisher]" style="font-size:9px">{{ news.data.publisher }}</b></a>
+              </div>
+              <div style="font-size:11px;" v-if="news.data.link">
+                Original content at <b style="font-size:9px"><a :href="news.data.link" target="_blank">{{ news.data.link }}</a></b>
               </div>
               <div v-if="counters" class="counters">
                 <div v-for="counter in counters" v-bind:key="counter.uuid">
@@ -50,7 +59,7 @@
 
 <script>
 var LZUTF8 = require('lzutf8');
-
+let publishers = require('@/publishers.json')
 export default {
   name: 'home',
   mounted : function(){
@@ -68,24 +77,26 @@ export default {
                   app.connected = check.config.url.replace('/wallet/getinfo','')
                   app.axios.post(app.connected + '/read', {
                     protocol: 'news://'
-                  }).then(response => {
+                  }).then(async response => {
                     for(let x in response.data.data){
                       let nws = response.data.data[x].data
-                      
-                      if(nws.title !== undefined){
-                        response.data.data[x].data.title = LZUTF8.decompress(nws.title, { inputEncoding: 'Base64' });
-                        response.data.data[x].data.subtitle = LZUTF8.decompress(nws.subtitle, { inputEncoding: 'Base64' });
-                        response.data.data[x].data.image = LZUTF8.decompress(nws.image, { inputEncoding: 'Base64' });
-                        response.data.data[x].data.text = LZUTF8.decompress(nws.text, { inputEncoding: 'Base64' });
-                        if(nws.tags !== undefined){
-                          response.data.data[x].data.tags = LZUTF8.decompress(nws.tags, { inputEncoding: 'Base64' });
-                          response.data.data[x].data.tags = JSON.parse(response.data.data[x].data.tags)
-                          
-                        }else{
-                          response.data.data[x].data.tags = []
+                      if(nws.signature !== undefined){
+                        let verify = await app.scrypta.verifyMessage(nws.pubkey, nws.signature, nws.message)
+                        if(verify !== false){
+                          let publisher = nws.pubkey
+                          if(app.$route.params.pubkey === publisher){
+                            response.data.data[x].data = JSON.parse(response.data.data[x].data.message)
+                            response.data.data[x].data.title = LZUTF8.decompress(response.data.data[x].data.title, { inputEncoding: 'Base64' })
+                            response.data.data[x].data.text = LZUTF8.decompress(response.data.data[x].data.compressed, { inputEncoding: 'Base64' })
+                            response.data.data[x].data.tags = LZUTF8.decompress(response.data.data[x].data.tags, { inputEncoding: 'Base64' })
+                            response.data.data[x].data.tags = JSON.parse(response.data.data[x].data.tags)
+                            response.data.data[x].data.guid = LZUTF8.decompress(response.data.data[x].data.guid, { inputEncoding: 'Base64' })
+                            response.data.data[x].data.creator = LZUTF8.decompress(response.data.data[x].data.creator, { inputEncoding: 'Base64' })
+                            response.data.data[x].data.link = LZUTF8.decompress(response.data.data[x].data.link, { inputEncoding: 'Base64' })
+                            app.feed.push(response.data.data[x])
+                          }
                         }
                       }
-                      app.feed.push(response.data.data[x])
                     }
                     app.isLoading = false
                     app.readCounters()
@@ -130,6 +141,7 @@ export default {
       axios: window.axios,
       nodes: [],
       connected: '',
+      publishers: publishers,
       feed: [],
       isLoading: true,
       counters: [],
@@ -145,12 +157,5 @@ export default {
   }
   .feed img{
     max-width:100%
-  }
-  .arrow-dx{
-    color:#000;
-    font-size:60px!important;
-    position:absolute;
-    top:-10px;
-    right:0;
   }
 </style>

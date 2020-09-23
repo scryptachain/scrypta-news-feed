@@ -106,6 +106,14 @@
               <div style="font-size: 12px">
                 Written at block <i>{{ news.block }}</i>
               </div>
+
+              <div style="font-size:11px;" v-if="news.data.link">
+                Original content at <b style="font-size:9px"><a :href="news.data.link" target="_blank">{{ news.data.link }}</a></b>
+              </div>
+
+              <div style="font-size:11px;" v-if="news.data.publisher">
+                Published by <a :href="'/#/publisher/' + news.data.publisher"><b v-if="publishers[news.data.publisher]" style="font-size:9px">{{ publishers[news.data.publisher] }}</b><b v-if="!publishers[news.data.publisher]">{{ news.data.publisher }}</b></a>
+              </div>
               <div v-if="counters" class="counters">
                 <div v-for="counter in counters" v-bind:key="counter.uuid">
                   <div v-if="counter.uuid === news.uuid">
@@ -122,9 +130,8 @@
                   </div>
                 </div>
               </div>
-              <a :href="'/#/news/' + news.uuid">
+              <a :href="'/#/news/' + news.uuid" style="position: absolute!important; bottom:40px; right:0;">
                 <b-icon-arrow-right
-                  style="font-size: 30px !important"
                   class="arrow-dx"
                 ></b-icon-arrow-right>
               </a>
@@ -145,6 +152,7 @@
 </template>
 
 <script>
+let publishers = require('@/publishers.json')
 var LZUTF8 = require("lzutf8");
 export default {
   name: "home",
@@ -193,6 +201,7 @@ export default {
                             response.data.data[x].data = JSON.parse(
                               response.data.data[x].data.message
                             );
+                            response.data.data[x].data.publisher = nws.pubkey
                             response.data.data[
                               x
                             ].data.title = LZUTF8.decompress(
@@ -327,6 +336,7 @@ export default {
       axios: window.axios,
       nodes: [],
       connected: "",
+      publishers: publishers,
       feed: [],
       author: "",
       isLoading: true,
@@ -351,13 +361,6 @@ export default {
 }
 .feed img {
   max-width: 100%;
-}
-.arrow-dx {
-  color: #000;
-  font-size: 40px !important;
-  position: absolute;
-  top: -10px;
-  right: 0;
 }
 .pencil-dx {
   color: #000;
