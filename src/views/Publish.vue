@@ -37,7 +37,7 @@
               {{ publication.feed }}: <span v-if="publication.active === 'true' || publication.active === true" style="color:green">ACTIVE</span> <span v-if="publication.active === 'false' || publication.active === false" style="color:red">NOT ACTIVE</span>
             </div>
             <hr>
-            Your master key is <b>{{ masterkey }}</b> with a balance of {{ balancemaster }} LYRA, useful to write about {{ Math.ceil(balancemaster / 0.0015) }} articles.
+            Your master key is <b>{{ masterkey }}</b> with a balance of {{ balancemaster }} LYRA, useful to write about {{ Math.floor(balancemaster / 1) }} articles.
           </div>
           <div v-if="publications.length === 0">
             Nothing to show..
