@@ -7,6 +7,7 @@ import News from './views/News.vue'
 import Author from './views/Author.vue'
 import Edit from './views/Edit.vue'
 import Publisher from './views/Publisher.vue'
+import Publish from './views/Publish.vue'
 import Gravatar from 'vue-gravatar'
 
 Vue.use(Router)
@@ -49,6 +50,11 @@ export default new Router({
       path: '/publisher/:pubkey',
       name: 'Publisher',
       component: Publisher
+    },
+    {
+      path: '/publish',
+      name: 'Publish',
+      component: Publish
     }
   ]
 })

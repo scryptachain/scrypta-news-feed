@@ -35,8 +35,8 @@
               <div style="font-size:11px;" v-if="news.data.publisher">
                 Published by <a :href="'/#/publisher/' + news.data.publisher"><b v-if="publishers[news.data.publisher]">{{ publishers[news.data.publisher] }}</b><b v-if="!publishers[news.data.publisher]" style="font-size:9px">{{ news.data.publisher }}</b></a>
               </div>
-              <div style="font-size:11px;" v-if="news.data.link">
-                Original content at <b style="font-size:9px"><a :href="news.data.link" target="_blank">{{ news.data.link }}</a></b>
+              <div style="font-size:11px;" v-if="news.data.domain">
+                Original content at <b style="font-size:9px"><a :href="news.data.link" target="_blank">{{ news.data.domain }}</a></b>
               </div>
               <div v-if="counters" class="counters">
                 <div v-for="counter in counters" v-bind:key="counter.uuid">
@@ -78,6 +78,7 @@ export default {
                   app.axios.post(app.connected + '/read', {
                     protocol: 'news://'
                   }).then(async response => {
+                    let unique = []
                     for(let x in response.data.data){
                       let nws = response.data.data[x].data
                       if(nws.signature !== undefined){
@@ -85,14 +86,20 @@ export default {
                         if(verify !== false){
                           response.data.data[x].data = JSON.parse(response.data.data[x].data.message)
                           response.data.data[x].data.publisher = nws.pubkey
-                          response.data.data[x].data.title = LZUTF8.decompress(response.data.data[x].data.title, { inputEncoding: 'Base64' })
-                          response.data.data[x].data.text = LZUTF8.decompress(response.data.data[x].data.compressed, { inputEncoding: 'Base64' })
-                          response.data.data[x].data.tags = LZUTF8.decompress(response.data.data[x].data.tags, { inputEncoding: 'Base64' })
-                          response.data.data[x].data.tags = JSON.parse(response.data.data[x].data.tags)
-                          response.data.data[x].data.guid = LZUTF8.decompress(response.data.data[x].data.guid, { inputEncoding: 'Base64' })
-                          response.data.data[x].data.creator = LZUTF8.decompress(response.data.data[x].data.creator, { inputEncoding: 'Base64' })
-                          response.data.data[x].data.link = LZUTF8.decompress(response.data.data[x].data.link, { inputEncoding: 'Base64' })
-                          app.feed.push(response.data.data[x])
+                          if(response.data.data[x].data.version !== undefined && response.data.data[x].data.version === 2){
+                            response.data.data[x].data.title = LZUTF8.decompress(response.data.data[x].data.title, { inputEncoding: 'Base64' })
+                            response.data.data[x].data.text = LZUTF8.decompress(response.data.data[x].data.compressed, { inputEncoding: 'Base64' })
+                            response.data.data[x].data.tags = LZUTF8.decompress(response.data.data[x].data.tags, { inputEncoding: 'Base64' })
+                            response.data.data[x].data.tags = JSON.parse(response.data.data[x].data.tags)
+                            response.data.data[x].data.guid = LZUTF8.decompress(response.data.data[x].data.guid, { inputEncoding: 'Base64' })
+                            response.data.data[x].data.creator = LZUTF8.decompress(response.data.data[x].data.creator, { inputEncoding: 'Base64' })
+                            response.data.data[x].data.link = LZUTF8.decompress(response.data.data[x].data.link, { inputEncoding: 'Base64' })
+                            response.data.data[x].data.domain = response.data.data[x].data.link.replace('http://','').replace('https://','').split(/[/?#]/)[0];
+                            if(unique.indexOf(nws.signature) === -1){
+                              unique.push(nws.signature)
+                              app.feed.push(response.data.data[x])
+                            }
+                          }
                         }
                       }else{
                         if(nws.title !== undefined){

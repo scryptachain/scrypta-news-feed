@@ -14,11 +14,7 @@
         <div v-if="feed[0] && feed[0].data.creator">
           <h4 class="author">{{ feed[0].data.creator }}</h4>
           Identified as
-          <b
-            >{{
-             author
-            }}</b
-          >
+          <b>{{ author }}</b>
         </div>
         <div v-if="feed[0] && !feed[0].data.creator">
           <h4 class="author">{{ author }}</h4>
@@ -107,12 +103,26 @@
                 Written at block <i>{{ news.block }}</i>
               </div>
 
-              <div style="font-size:11px;" v-if="news.data.link">
-                Original content at <b style="font-size:9px"><a :href="news.data.link" target="_blank">{{ news.data.link }}</a></b>
+              <div style="font-size: 11px" v-if="news.data.domain">
+                Original content at
+                <b style="font-size: 9px"
+                  ><a :href="news.data.link" target="_blank">{{
+                    news.data.domain
+                  }}</a></b
+                >
               </div>
 
-              <div style="font-size:11px;" v-if="news.data.publisher">
-                Published by <a :href="'/#/publisher/' + news.data.publisher"><b v-if="publishers[news.data.publisher]" style="font-size:9px">{{ publishers[news.data.publisher] }}</b><b v-if="!publishers[news.data.publisher]">{{ news.data.publisher }}</b></a>
+              <div style="font-size: 11px" v-if="news.data.publisher">
+                Published by
+                <a :href="'/#/publisher/' + news.data.publisher"
+                  ><b
+                    v-if="publishers[news.data.publisher]"
+                    style="font-size: 9px"
+                    >{{ publishers[news.data.publisher] }}</b
+                  ><b v-if="!publishers[news.data.publisher]">{{
+                    news.data.publisher
+                  }}</b></a
+                >
               </div>
               <div v-if="counters" class="counters">
                 <div v-for="counter in counters" v-bind:key="counter.uuid">
@@ -130,10 +140,11 @@
                   </div>
                 </div>
               </div>
-              <a :href="'/#/news/' + news.uuid" style="position: absolute!important; bottom:40px; right:0;">
-                <b-icon-arrow-right
-                  class="arrow-dx"
-                ></b-icon-arrow-right>
+              <a
+                :href="'/#/news/' + news.uuid"
+                style="position: absolute !important; bottom: 40px; right: 0"
+              >
+                <b-icon-arrow-right class="arrow-dx"></b-icon-arrow-right>
               </a>
               <a v-if="author === user" :href="'/#/edit/' + news.uuid">
                 <b-icon-pencil
@@ -152,7 +163,7 @@
 </template>
 
 <script>
-let publishers = require('@/publishers.json')
+let publishers = require("@/publishers.json");
 var LZUTF8 = require("lzutf8");
 export default {
   name: "home",
@@ -184,6 +195,7 @@ export default {
                   address: app.author,
                 })
                 .then(async (response) => {
+                  let unique = []
                   if (response.data.data.length > 0) {
                     for (let x in response.data.data) {
                       if (
@@ -201,7 +213,7 @@ export default {
                             response.data.data[x].data = JSON.parse(
                               response.data.data[x].data.message
                             );
-                            response.data.data[x].data.publisher = nws.pubkey
+                            response.data.data[x].data.publisher = nws.pubkey;
                             response.data.data[
                               x
                             ].data.title = LZUTF8.decompress(
@@ -241,7 +253,16 @@ export default {
                               response.data.data[x].data.link,
                               { inputEncoding: "Base64" }
                             );
-                            app.feed.push(response.data.data[x]);
+                            response.data.data[
+                              x
+                            ].data.domain = response.data.data[x].data.link
+                              .replace("http://", "")
+                              .replace("https://", "")
+                              .split(/[/?#]/)[0];
+                            if (unique.indexOf(nws.signature) === -1) {
+                              unique.push(nws.signature);
+                              app.feed.push(response.data.data[x]);
+                            }
                           }
                         } else {
                           if (nws.title !== undefined) {
@@ -260,11 +281,12 @@ export default {
                             ].data.image = LZUTF8.decompress(nws.image, {
                               inputEncoding: "Base64",
                             });
-                            response.data.data[
-                              x
-                            ].data.text = LZUTF8.decompress(nws.text, {
-                              inputEncoding: "Base64",
-                            });
+                            response.data.data[x].data.text = LZUTF8.decompress(
+                              nws.text,
+                              {
+                                inputEncoding: "Base64",
+                              }
+                            );
                           }
                           app.feed.push(response.data.data[x]);
                         }
