@@ -146,19 +146,12 @@ export default {
         var errors = false;
         var protocol = "rsspin://";
         var dataToWrite = app.rssURL;
-
+        
         if (errors === false && app.rssURL !== undefined) {
           app.workingmessage =
             "Uploading data to the blockchain, please wait and don't refresh the page...";
-          app.scrypta
-            .write(
-              app.unlockPwd,
-              dataToWrite,
-              "",
-              "",
-              protocol,
-              app.public_address + ":" + app.encrypted_wallet
-            )
+          app.scryptacore.staticnodes = true
+          app.scryptacore.write(app.public_address + ":" + app.encrypted_wallet, app.unlockPwd, dataToWrite, '', '', protocol)
             .then((res) => {
               if (res.uuid !== undefined) {
                 alert(
@@ -188,7 +181,7 @@ export default {
       if (this.unlockPwd !== "") {
         var app = this;
         app.decrypted_wallet = "WALLET LOCKED";
-        app.scrypta.readKey(this.unlockPwd).then(function (response) {
+        app.scryptacore.readKey(app.unlockPwd, app.public_address + ":" + app.encrypted_wallet).then(function (response) {
           if (response !== false) {
             app.passwordShow = false;
             app.uploadData();
