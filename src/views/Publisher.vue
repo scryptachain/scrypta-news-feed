@@ -176,9 +176,10 @@ export default {
               app.axios
                 .post(app.connected + "/read", {
                   protocol: "news://",
+                  limit: 1000000
                 })
                 .then(async (response) => {
-                  let unique = []
+                  let unique = [];
                   for (let x in response.data.data) {
                     let nws = response.data.data[x].data;
                     if (nws.signature !== undefined) {
@@ -220,6 +221,25 @@ export default {
                             response.data.data[x].data.guid,
                             { inputEncoding: "Base64" }
                           );
+                          response.data.data[x].data.time = new Date(
+                            response.data.data[x].data.pubdate
+                          ).getTime();
+                          let datesplit = response.data.data[
+                            x
+                          ].data.pubdate.split("T");
+                          let datedate = datesplit[0].split("-");
+                          let datetime = datesplit[1].split(":");
+                          response.data.data[x].data.pubdate =
+                            datedate[2] +
+                            "/" +
+                            datedate[1] +
+                            "/" +
+                            datedate[0] +
+                            " at " +
+                            datetime[0] +
+                            ":" +
+                            datetime[1];
+
                           response.data.data[
                             x
                           ].data.creator = LZUTF8.decompress(
@@ -246,6 +266,10 @@ export default {
                       }
                     }
                   }
+
+                  app.feed.sort(function(a, b) {
+                    return parseFloat(b.data.time) - parseFloat(a.data.time);
+                  });
                   app.isLoading = false;
                   app.readCounters();
                 });

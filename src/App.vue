@@ -9,9 +9,6 @@
 
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
-          <a href="/#/login" v-if="!user">
-            <b-button size="sm" class="my-2 my-sm-0">Login</b-button>
-          </a>
           <a style="color:#333; margin-right:10px;" :href="'/#/author/' + user" v-if="user">
             <b-button style="background-color:green; border-color:green" size="sm">Profile</b-button>
           </a>

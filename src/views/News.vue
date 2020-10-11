@@ -162,11 +162,10 @@
                   }}</a></b
                 >
                 at block <i>{{ news.block }}</i>
+                <br>Published on  <i>{{ news.data.pubdate }}</i><br />
               </div>
             </div>
-            at block <i>{{ news.block }}</i
-            ><br />
-            Timestamped at {{ time }}<br />
+            Timestamped on {{ time }}<br />
             <a
               :href="'https://proof.scryptachain.org/#/uuid/' + news.uuid"
               target="_blank"
@@ -184,42 +183,87 @@
               >
               <hr />
             </div>
-            <social-sharing
-              :url="'https://news.scryptachain.org/#/news/' + news.uuid"
-              :title="news.data.title"
-              :description="
-                news.data.text.replace(/<\/?[^>]+(>|$)/g, '').substr(0, 255) +
-                '...'
-              "
-              :quote="news.data.subtitle"
-              :hashtags="JSON.stringify(news.data.tags)"
-              inline-template
-            >
               <div class="sharing-buttons">
                 <h5>Share on:</h5>
-                <network network="email">
-                  <b-button>Email</b-button>
-                </network>
-                <network network="facebook">
-                  <b-button>Facebook</b-button>
-                </network>
-                <network network="linkedin">
-                  <b-button>Linkedin</b-button>
-                </network>
-                <network network="reddit">
-                  <b-button>Reddit</b-button>
-                </network>
-                <network network="telegram">
-                  <b-button>Telegram</b-button>
-                </network>
-                <network network="twitter">
-                  <b-button>Twitter</b-button>
-                </network>
-                <network network="whatsapp">
-                  <b-button>Whatsapp</b-button>
-                </network>
+                <ShareNetwork
+                    network="facebook"
+                    :url="'https://news.scryptachain.org/#/news/' + news.uuid"
+                    :title="news.data.title"
+                    :description="
+                      news.data.text.replace(/<\/?[^>]+(>|$)/g, '').substr(0, 255) +
+                      '...'
+                    "
+                    :quote="news.data.subtitle"
+                    :hashtags="news.data.tagsline"
+                  >
+                    <b-button>Facebook</b-button>
+                </ShareNetwork>
+                <ShareNetwork
+                    network="twitter"
+                    :url="'https://news.scryptachain.org/#/news/' + news.uuid"
+                    :title="news.data.title"
+                    :description="
+                      news.data.text.replace(/<\/?[^>]+(>|$)/g, '').substr(0, 255) +
+                      '...'
+                    "
+                    :quote="news.data.subtitle"
+                    :hashtags="news.data.tagsline"
+                  >
+                    <b-button>Twitter</b-button>
+                </ShareNetwork>
+                <ShareNetwork
+                    network="telegram"
+                    :url="'https://news.scryptachain.org/#/news/' + news.uuid"
+                    :title="news.data.title"
+                    :description="
+                      news.data.text.replace(/<\/?[^>]+(>|$)/g, '').substr(0, 255) +
+                      '...'
+                    "
+                    :quote="news.data.subtitle"
+                    :hashtags="news.data.tagsline"
+                  >
+                    <b-button>Telegram</b-button>
+                </ShareNetwork>
+                <ShareNetwork
+                    network="linkedin"
+                    :url="'https://news.scryptachain.org/#/news/' + news.uuid"
+                    :title="news.data.title"
+                    :description="
+                      news.data.text.replace(/<\/?[^>]+(>|$)/g, '').substr(0, 255) +
+                      '...'
+                    "
+                    :quote="news.data.subtitle"
+                    :hashtags="news.data.tagsline"
+                  >
+                    <b-button>Linkedin</b-button>
+                </ShareNetwork>
+                <ShareNetwork
+                    network="reddit"
+                    :url="'https://news.scryptachain.org/#/news/' + news.uuid"
+                    :title="news.data.title"
+                    :description="
+                      news.data.text.replace(/<\/?[^>]+(>|$)/g, '').substr(0, 255) +
+                      '...'
+                    "
+                    :quote="news.data.subtitle"
+                    :hashtags="news.data.tagsline"
+                  >
+                    <b-button>Reddit</b-button>
+                </ShareNetwork>
+                <ShareNetwork
+                    network="whatsapp"
+                    :url="'https://news.scryptachain.org/#/news/' + news.uuid"
+                    :title="news.data.title"
+                    :description="
+                      news.data.text.replace(/<\/?[^>]+(>|$)/g, '').substr(0, 255) +
+                      '...'
+                    "
+                    :quote="news.data.subtitle"
+                    :hashtags="news.data.tagsline"
+                  >
+                    <b-button>Whatsapp</b-button>
+                </ShareNetwork>
               </div>
-            </social-sharing>
             <hr />
             <div style="width: 100%; height: 30px" class="counters" v-if="user">
               <b-button
@@ -247,7 +291,7 @@
                 style="float: right"
                 variant="primary"
                 v-on:click="openTip"
-                class="my-2 my-sm-0"
+                class="my-2 my-sm-0 tipuser"
               >
                 <b-icon-credit-card></b-icon-credit-card> TIP USER
               </b-button>
@@ -328,6 +372,12 @@ export default {
                         app.news.data.tags,
                         { inputEncoding: "Base64" }
                       );
+                      app.news.data.time = new Date(app.news.data.pubdate).getTime()
+                      let datesplit = app.news.data.pubdate.split('T')
+                      let datedate = datesplit[0].split('-')
+                      let datetime = datesplit[1].split(':')
+                      app.news.data.pubdate = datedate[2] + '/' + datedate[1] + '/' + datedate[0] + ' at ' + datetime[0] + ':' + datetime[1]
+                      
                       app.news.data.tags = JSON.parse(app.news.data.tags);
                       app.news.data.guid = LZUTF8.decompress(
                         app.news.data.guid,
@@ -374,6 +424,13 @@ export default {
                         inputEncoding: "Base64",
                       });
                     }
+                  }
+                  app.news.data.tagsline = ''
+                  for(let t in app.news.data.tags){
+                    if(t !== 0){
+                      app.news.data.tagsline += ','
+                    }
+                    app.news.data.tagsline += app.news.data.tags[t]
                   }
                   app.time = new Date(app.news.time * 1000).toUTCString();
                   app.isLoading = false;

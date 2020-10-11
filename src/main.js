@@ -4,11 +4,11 @@ import router from './router'
 import store from './store'
 import './registerServiceWorker'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
-var SocialSharing = require('vue-social-sharing')
+import VueSocialSharing from 'vue-social-sharing'
 import vueHeadful from 'vue-headful'
 
 Vue.component('vue-headful', vueHeadful)
-Vue.use(SocialSharing)
+Vue.use(VueSocialSharing)
 Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
 

@@ -30,10 +30,10 @@
                 Written by <b><a :href="'/#/author/' + news.address">{{ news.address.substr(0,3) }}...{{ news.address.substr(-3) }}</a></b> at block <i>{{ news.block }}</i>
               </div>
               <div style="font-size:11px;" v-if="news.data.creator">
-                Written by <b><a :href="'/#/author/' + news.address">{{ news.data.creator }}</a></b> at block <i>{{ news.block }}</i>
+                Written by <b><a :href="'/#/author/' + news.address">{{ news.data.creator }}</a></b> and notarized block <i>{{ news.block }}</i>
               </div>
               <div style="font-size:11px;" v-if="news.data.publisher">
-                Published by <a :href="'/#/publisher/' + news.data.publisher"><b v-if="publishers[news.data.publisher]">{{ publishers[news.data.publisher] }}</b><b v-if="!publishers[news.data.publisher]" style="font-size:9px">{{ news.data.publisher }}</b></a>
+                Published by <a :href="'/#/publisher/' + news.data.publisher"><b v-if="publishers[news.data.publisher]">{{ publishers[news.data.publisher] }}</b><b v-if="!publishers[news.data.publisher]" style="font-size:9px">{{ news.data.publisher }}</b></a> on {{ news.data.pubdate }}
               </div>
               <div style="font-size:11px;" v-if="news.data.domain">
                 Original content at <b style="font-size:9px"><a :href="news.data.link" target="_blank">{{ news.data.domain }}</a></b>
@@ -76,7 +76,8 @@ export default {
                 if(app.connected === ''){
                   app.connected = check.config.url.replace('/wallet/getinfo','')
                   app.axios.post(app.connected + '/read', {
-                    protocol: 'news://'
+                    protocol: 'news://',
+                    limit: 1000000
                   }).then(async response => {
                     let unique = []
                     for(let x in response.data.data){
@@ -91,6 +92,11 @@ export default {
                             response.data.data[x].data.text = LZUTF8.decompress(response.data.data[x].data.compressed, { inputEncoding: 'Base64' })
                             response.data.data[x].data.tags = LZUTF8.decompress(response.data.data[x].data.tags, { inputEncoding: 'Base64' })
                             response.data.data[x].data.tags = JSON.parse(response.data.data[x].data.tags)
+                            response.data.data[x].data.time = new Date(response.data.data[x].data.pubdate).getTime()
+                            let datesplit = response.data.data[x].data.pubdate.split('T')
+                            let datedate = datesplit[0].split('-')
+                            let datetime = datesplit[1].split(':')
+                            response.data.data[x].data.pubdate = datedate[2] + '/' + datedate[1] + '/' + datedate[0] + ' at ' + datetime[0] + ':' + datetime[1]
                             response.data.data[x].data.guid = LZUTF8.decompress(response.data.data[x].data.guid, { inputEncoding: 'Base64' })
                             response.data.data[x].data.creator = LZUTF8.decompress(response.data.data[x].data.creator, { inputEncoding: 'Base64' })
                             response.data.data[x].data.link = LZUTF8.decompress(response.data.data[x].data.link, { inputEncoding: 'Base64' })
@@ -117,6 +123,9 @@ export default {
                         app.feed.push(response.data.data[x])
                       }
                     }
+                    app.feed.sort(function(a, b) {
+                      return parseFloat(b.data.time) - parseFloat(a.data.time);
+                    });
                     app.isLoading = false
                     app.readCounters()
                   })
@@ -129,7 +138,7 @@ export default {
       async readCounters(){
         const app = this
         for(let y in app.feed){
-          let votes = await app.axios.post(app.connected + '/read',{ protocol: 'news://', refID: app.feed[y].uuid })
+          let votes = await app.axios.post(app.connected + '/read',{ protocol: 'news://', refID: app.feed[y].uuid})
           let upvotes = 0
           let downvotes = 0
           for(let x in votes.data.data){
